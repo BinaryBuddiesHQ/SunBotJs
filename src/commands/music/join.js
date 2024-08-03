@@ -1,5 +1,5 @@
-const { joinVoiceChannel, VoiceConnectionStatus } = require('@discordjs/voice');
-const { SlashCommandBuilder } = require('discord.js');
+const { joinVoiceChannel, createAudioPlayer } = require('@discordjs/voice');
+const { SlashCommandBuilder, ChannelType } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -8,51 +8,42 @@ module.exports = {
     .addChannelOption(option =>
       option.setName('channel')
         .setDescription('The channel to join')
+        .addChannelTypes(ChannelType.GuildVoice)
     ),
 
   async execute(interaction) {
-    const inputChannel = interaction.options.getChannel('channel');
-
-    let connection = undefined;
+    const inputChannel = interaction.options.getChannel('channel') 
+      ?? interaction.member.voice.channel;
 
     if (!inputChannel) {
-      const channel = await interaction.member.voice.channel;
-      connection = joinVoiceChannel({
-        channelId: channel.id,
-        guildId: channel.guild.id,
-        adapterCreator: channel.guild.voiceAdapterCreator,
-        selfDeaf: false
-      });
-    }
-    else {
-      connection = joinVoiceChannel({
-        channelId: inputChannel.id,
-        guildId: inputChannel.guild.id,
-        adapterCreator: inputChannel.guild.voiceAdapterCreator,
-        selfDeaf: false
-      });
+      interaction.reply('Join a channel to summon me, or provide a channel in the /join command.');
+      return;
     }
 
-    // event handler for voiceConnection?
-    connection.on(VoiceConnectionStatus.Connecting, () => {
-      console.log('Connecting voice connection...');
-    })
-
-    connection.on(VoiceConnectionStatus.Destroyed, () => {
-      console.log('destroyed voice connection...');
-    })
-
-    connection.on(VoiceConnectionStatus.Disconnected, () => {
-      console.log('disconnected voice connection...');
+    connection = joinVoiceChannel({
+      channelId: inputChannel.id,
+      guildId: inputChannel.guild.id,
+      adapterCreator: inputChannel.guild.voiceAdapterCreator,
+      selfDeaf: false
     });
 
-    connection.on(VoiceConnectionStatus.Ready, () => {
-      console.log('ready voice connection...')
-    })
+    const events = require('../../services/load-voice-events');
+    events.forEach(event => {
+      connection.on(event.name, () => event.execute());
+    });
+
+    const player = createAudioPlayer();
+    connection.player = player;
+    connection.subscribe(player);
+
     
-    connection.on(VoiceConnectionStatus.Signalling, () => {
-      console.log('signaling voice connection...');
+    const playerEvents = require('../../services/load-audio-events');
+    playerEvents.forEach(event => {
+      event.interaction = interaction;
+      player.on(event.name, (...args) => event.execute(connection, ...args));
     });
+
+    
 
     await interaction.reply(`Ready to rock!`);
   }

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { createAudioResource, createAudioPlayer, getVoiceConnection, StreamType, AudioPlayerStatus } = require('@discordjs/voice');
+const { createAudioResource, getVoiceConnection } = require('@discordjs/voice');
 const ytSearch = require('yt-search');
 const ytdl = require('@distube/ytdl-core');
 
@@ -14,78 +14,47 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    const youtubePattern = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|user\/[^\/]+\/|.+\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
     const input = interaction.options.getString('input');
+    const results = await ytSearch(input);
 
-    // const client = interaction.client;
-    // console.log(client);
-    // Queue on client..? if song is already playing, add to queue
-    // Event handler for when audio stopd, check if queue has any
-    // do next
-    // stop playing
-
-    // play command queues up songs? some kinda voiceevent dequeues?
-
-    if (youtubePattern.test(input)) {
-      // just get the link and scrape and play
-      console.log("input is a youtube link.");
+    if (!results?.videos && results?.videos?.length < 1) {
+      interaction.reply("no hits m'dude");
+      return;
     }
-    else {
-      const results = await ytSearch(input);
 
-      if (results?.videos && results.videos.length > 0) {
-        const video = results.videos[0];
+    const video = results.videos[0];
 
-        const info = await ytdl.getInfo(video.url);
-        const audioFormat = info.formats
-          .filter(format => format.mimeType.startsWith('audio/'))
-          .find(format => format.codecs.includes('opus'));
+    const info = await ytdl.getInfo(video.url);
+    const audioFormat = info.formats
+      .filter(format => format.mimeType.startsWith('audio/'))
+      .find(format => format.codecs.includes('opus'));
 
-        if (!audioFormat) {
-          console.log("No suitable audio format found.");
-          interaction.reply("No suitable audio format found.");
-          return;
-        }
-
-        const audioStream = ytdl(video.url, {
-          format: audioFormat,
-        });
-
-        const resource = createAudioResource(audioStream);
-        const connection = getVoiceConnection(interaction.guild.id);
-        const player = createAudioPlayer();
-        
-        // Event handler for player?
-
-        player.on(AudioPlayerStatus.Playing, () => {
-          console.log('audio playing...');
-        });
-
-        player.on(AudioPlayerStatus.Idle, () => {
-          console.log('audio idle...');
-        });
-
-        player.on(AudioPlayerStatus.Paused, () =>  {
-          console.log('audio paused...');
-        });
-
-        player.on(AudioPlayerStatus.AutoPaused, () => {
-          console.log('audio auto paused...');
-        });
-
-        player.on(AudioPlayerStatus.Buffering, () => {
-          console.log('audio buffering...');
-        });
-
-
-        connection.subscribe((player));
-        player.play(resource);
-
-        interaction.reply("foobar"); // TODO: current song
-      }
-      else {
-        interaction.reply("Couldn't find the video m'dude..");
-      }
+    if (!audioFormat) {
+      console.log("No suitable audio format found.");
+      interaction.reply("No suitable audio format found.");
+      return;
     }
+
+    const audioStream = ytdl(video.url, {
+      // format: audioFormat,
+      format: 'opus',
+      filter: 'audioonly'
+    });
+
+    const resource = createAudioResource(audioStream);
+    const connection = getVoiceConnection(interaction.guild.id);
+    
+    if(!connection.queue)
+      connection.queue = []; 
+    
+    connection.queue.push(info.videoDetails.title);
+    
+
+
+    connection.player.play(resource);
+    
+    
+    
+    interaction.reply("foobar"); // TODO: current song
   }
 }
