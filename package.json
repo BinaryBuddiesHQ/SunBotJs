@@ -1,6 +1,6 @@
 {
   "name": "sunbot",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Discord bot",
   "private": true,
   "main": "src/main.js",
