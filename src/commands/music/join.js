@@ -33,6 +33,7 @@ module.exports = {
       });
     }
 
+    // event handler for voiceConnection?
     connection.on(VoiceConnectionStatus.Connecting, () => {
       console.log('Connecting voice connection...');
     })

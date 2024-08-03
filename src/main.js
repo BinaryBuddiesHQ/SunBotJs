@@ -17,3 +17,9 @@ events.forEach(event => {
 });
 
 client.login(token);
+
+
+
+process.on('uncaughtException', (error) => {
+	console.error(('Uncaught exception: ', error));
+});

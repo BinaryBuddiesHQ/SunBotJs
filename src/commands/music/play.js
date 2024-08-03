@@ -43,7 +43,7 @@ module.exports = {
 
         if (!audioFormat) {
           console.log("No suitable audio format found.");
-          Integration.reply("No suitable audio format found.");
+          interaction.reply("No suitable audio format found.");
           return;
         }
 
@@ -55,8 +55,10 @@ module.exports = {
         const connection = getVoiceConnection(interaction.guild.id);
         const player = createAudioPlayer();
         
+        // Event handler for player?
+
         player.on(AudioPlayerStatus.Playing, () => {
-          console.log('Audio playing...');
+          console.log('audio playing...');
         });
 
         player.on(AudioPlayerStatus.Idle, () => {
