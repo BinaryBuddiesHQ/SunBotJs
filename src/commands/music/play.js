@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { createAudioResource, createAudioPlayer, getVoiceConnection, StreamType } = require('@discordjs/voice');
+const { createAudioResource, createAudioPlayer, getVoiceConnection, StreamType, AudioPlayerStatus } = require('@discordjs/voice');
 const ytSearch = require('yt-search');
 const ytdl = require('@distube/ytdl-core');
 
@@ -54,6 +54,27 @@ module.exports = {
         const resource = createAudioResource(audioStream);
         const connection = getVoiceConnection(interaction.guild.id);
         const player = createAudioPlayer();
+        
+        player.on(AudioPlayerStatus.Playing, () => {
+          console.log('Audio playing...');
+        });
+
+        player.on(AudioPlayerStatus.Idle, () => {
+          console.log('audio idle...');
+        });
+
+        player.on(AudioPlayerStatus.Paused, () =>  {
+          console.log('audio paused...');
+        });
+
+        player.on(AudioPlayerStatus.AutoPaused, () => {
+          console.log('audio auto paused...');
+        });
+
+        player.on(AudioPlayerStatus.Buffering, () => {
+          console.log('audio buffering...');
+        });
+
 
         connection.subscribe((player));
         player.play(resource);
