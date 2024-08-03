@@ -9,7 +9,7 @@ const client = new Client({
 });
 
 client.commands = require('./services/load-commands');
-const events = require('./services/event-handler');
+const events = require('./services/client-event-handler');
 events.forEach(event => {
 	if (event.once)
 		client.once(event.name, (...args) => event.execute(...args));
@@ -17,8 +17,6 @@ events.forEach(event => {
 });
 
 client.login(token);
-
-
 
 process.on('uncaughtException', (error) => {
 	console.error(('Uncaught exception: ', error));
