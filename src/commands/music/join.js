@@ -35,15 +35,12 @@ module.exports = {
     const player = createAudioPlayer();
     connection.player = player;
     connection.subscribe(player);
-
     
     const playerEvents = require('../../services/load-audio-events');
     playerEvents.forEach(event => {
       event.interaction = interaction;
       player.on(event.name, (...args) => event.execute(connection, ...args));
     });
-
-    
 
     await interaction.reply(`Ready to rock!`);
   }

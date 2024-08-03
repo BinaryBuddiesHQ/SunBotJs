@@ -1,5 +1,5 @@
-const { SlashCommandBuilder } = require('discord.js');
-const { createAudioResource, getVoiceConnection } = require('@discordjs/voice');
+const { SlashCommandBuilder, ContextMenuCommandInteraction } = require('discord.js');
+const { createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus } = require('@discordjs/voice');
 const ytSearch = require('yt-search');
 const ytdl = require('@distube/ytdl-core');
 
@@ -14,6 +14,37 @@ module.exports = {
     ),
 
   async execute(interaction) {
+    let connection = getVoiceConnection(interaction.guild.id);
+    if (!connection) {
+      const channel = interaction.member.voice.channel;
+      if (!channel) {
+        interaction.reply('>:('); // TODO: real msg
+        return;
+      }
+
+      connection = joinVoiceChannel({
+        channelId: channel.id,
+        guildId: channel.guild.id,
+        adapterCreator: channel.guild.voiceAdapterCreator,
+        selfDeaf: false
+      });
+
+      const voiceEvents = require('../../services/load-voice-events');
+      voiceEvents.forEach(event => {
+        connection.on(event.name, () => event.execute());
+      });
+
+      const player = createAudioPlayer();
+      connection.player = player;
+      connection.subscribe(player);
+
+      const playerEvents = require('../../services/load-audio-events');
+      playerEvents.forEach(event => {
+        event.interaction = interaction;
+        player.on(event.name, (...args) => event.execute(connection, ...args));
+      });
+    }
+
     const input = interaction.options.getString('input');
     const results = await ytSearch(input);
 
@@ -35,26 +66,33 @@ module.exports = {
       return;
     }
 
-    const audioStream = ytdl(video.url, {
-      // format: audioFormat,
-      format: 'opus',
-      filter: 'audioonly'
-    });
+    // add to queue.
+    // if playing queue it up
+    if (connection.player.state.status === AudioPlayerStatus.Playing) {
+      console.log("i'm already playing something, queue it up");
 
-    const resource = createAudioResource(audioStream);
-    const connection = getVoiceConnection(interaction.guild.id);
-    
-    if(!connection.queue)
-      connection.queue = []; 
-    
-    connection.queue.push(info.videoDetails.title);
-    
+      if (!connection.queue)
+        connection.queue = [];
 
+      connection.queue.push({
+        videoUrl: video.url,
+        title: info.videoDetails.title
+      });
 
-    connection.player.play(resource);
-    
-    
-    
-    interaction.reply("foobar"); // TODO: current song
+      interaction.reply(`queueing: ${info.videoDetails.title}`);
+    }
+    else {
+      console.log('start the song..?')
+      const audioStream = ytdl(video.url, {
+        // format: audioFormat,
+        format: 'opus',
+        filter: 'audioonly'
+      });
+  
+      const resource = createAudioResource(audioStream);
+      connection.player.play(resource);
+  
+      interaction.reply(`playing ${info.videoDetails.title}`);
+    }
   }
 }
