@@ -15,6 +15,6 @@ module.exports = {
 
     connection.disconnect();
     connection.destroy();
-    await interaction.reply(`cya`);
+    await interaction.reply(`cya`); // TODO: real msg
   }
 }

@@ -14,10 +14,10 @@ module.exports = {
       const resource = createAudioResource(audioStream);
       connection.player.play(resource);
 
-      // interaction channel reply ("now playing song title etc");
+      // TODO: interaction channel reply ("now playing song title etc");
     }
     else {
-      // ?
+      // TODO: interaction channel reply ("queue empty etc etc")
     }
 
   }

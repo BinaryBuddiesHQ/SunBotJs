@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ContextMenuCommandInteraction } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const { createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus } = require('@discordjs/voice');
 const ytSearch = require('yt-search');
 const ytdl = require('@distube/ytdl-core');
@@ -57,8 +57,8 @@ module.exports = {
 
     const info = await ytdl.getInfo(video.url);
     const audioFormat = info.formats
-      .filter(format => format.mimeType.startsWith('audio/'))
-      .find(format => format.codecs.includes('opus'));
+      .filter(format => format?.mimeType?.startsWith('audio/'))
+      .find(format => format?.codecs?.includes('opus'));
 
     if (!audioFormat) {
       console.log("No suitable audio format found.");
