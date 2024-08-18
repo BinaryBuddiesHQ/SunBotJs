@@ -11,6 +11,6 @@ module.exports = {
 
   async execute(interaction) {
     const input = interaction.options.getString('input');
-    await interaction.reply(`Pong! ${input}`);
+    await interaction.reply(`Pong! ${input}`); //TODO: when empty message responds with "null"
   }
 }
