@@ -1,5 +1,6 @@
 const { joinVoiceChannel, createAudioPlayer } = require('@discordjs/voice');
 const { SlashCommandBuilder, ChannelType } = require('discord.js');
+const { loadVoiceEvents, loadAudioEvents } = require('../../services/loader-util');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -27,7 +28,7 @@ module.exports = {
       selfDeaf: false
     });
 
-    const events = require('../../services/load-voice-events');
+    const events = loadVoiceEvents();
     events.forEach(event => {
       connection.on(event.name, () => event.execute());
     });
@@ -36,7 +37,7 @@ module.exports = {
     connection.player = player;
     connection.subscribe(player);
     
-    const playerEvents = require('../../services/load-audio-events');
+    const playerEvents = loadAudioEvents();
     playerEvents.forEach(event => {
       event.interaction = interaction;
       player.on(event.name, (...args) => event.execute(connection, ...args));
