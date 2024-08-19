@@ -7,14 +7,22 @@ module.exports = {
     .setDescription('Leave'),
 
   async execute(interaction) {
-    const connection = getVoiceConnection(interaction.guild.id);
-    if (!connection) {
-      await interaction.reply(`>:(`);
-      return;
-    }
+    try {
+      const connection = getVoiceConnection(interaction.guild.id)
 
-    connection.disconnect();
-    connection.destroy();
-    await interaction.reply(`cya`); // TODO: real msg
+      if (!connection) {
+        await interaction.reply(`SunBot can't leave a channel if SunBot isn't in one!`)
+        return
+      }
+  
+      connection.disconnect()
+      connection.destroy()
+
+      await interaction.reply(`SunBot has left the voice channel`) // TODO: real msg - update: Think im done?? Not sure if this was what was expected tho?
+
+    } catch(error) {
+      console.error('Error executing leave command:', error)
+      await interaction.reply('An error occurred while trying to leave the voice channel.')
+    }
   }
 }
