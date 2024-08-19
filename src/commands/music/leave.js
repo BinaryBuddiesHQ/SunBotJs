@@ -18,7 +18,7 @@ module.exports = {
       connection.disconnect()
       connection.destroy()
 
-      await interaction.reply(`SunBot has left the voice channel`) // TODO: real msg - update: Think im done?? Not sure if this was what was expected tho?
+      await interaction.reply(`SunBot has left the voice channel`)
 
     } catch(error) {
       console.error('Error executing leave command:', error)
