@@ -3,6 +3,7 @@ const { EmbedBuilder } = require('discord.js');
 const { createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus } = require('@discordjs/voice');
 const ytSearch = require('yt-search');
 const ytdl = require('@distube/ytdl-core');
+const { loadVoiceEvents, loadAudioEvents } = require('../../services/loader-util');
 
 
 module.exports = {
@@ -82,7 +83,7 @@ module.exports = {
     });
 
     // init voice events
-    const voiceEvents = require('../../services/load-voice-events');
+    const voiceEvents = loadVoiceEvents();
     voiceEvents.forEach(event => {
       connection.on(event.name, () => event.execute());
     });
@@ -92,7 +93,7 @@ module.exports = {
     connection.player = player;
     connection.subscribe(player);
 
-    const playerEvents = require('../../services/load-audio-events');
+    const playerEvents = loadAudioEvents();
     playerEvents.forEach(event => {
       event.interaction = interaction;
       player.on(event.name, (...args) => event.execute(connection, ...args));

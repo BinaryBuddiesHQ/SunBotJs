@@ -1,11 +1,12 @@
 const { REST, Routes } = require('discord.js');
 const { clientId, guildId, token } = require('../config.json');
+const { loadCommands } = require('./loader-util');
 
 const args = process.argv.slice(2);
 const deployGlobal = args.includes('global');
 
 
-const commands = require('./load-commands');
+const commands = loadCommands();
 const commandsData = commands.map(x => x.data.toJSON());
 
 // Construct and prepare an instance of the REST module

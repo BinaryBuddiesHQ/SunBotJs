@@ -1,5 +1,6 @@
 const { GatewayIntentBits, Client } = require('discord.js');
 const { token } = require('./config.json');
+const { loadCommands, loadClientEvents } = require('./services/loader-util');
 
 const client = new Client({
 	intents: [
@@ -8,8 +9,8 @@ const client = new Client({
 	]
 });
 
-client.commands = require('./services/load-commands');
-const events = require('./services/load-client-events');
+client.commands = loadCommands();
+const events = loadClientEvents();
 events.forEach(event => {
 	if (event.once)
 		client.once(event.name, (...args) => event.execute(...args));
