@@ -1,9 +1,11 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { EmbedBuilder } = require('discord.js');
+
+const { loadVoiceEvents, loadAudioEvents } = require('../../services/loader-util');
 const { createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus } = require('@discordjs/voice');
+
 const ytSearch = require('yt-search');
 const ytdl = require('@distube/ytdl-core');
-const { loadVoiceEvents, loadAudioEvents } = require('../../services/loader-util');
 
 
 module.exports = {
@@ -64,6 +66,7 @@ module.exports = {
 
       interaction.reply({ embeds: [embed] });
     }
+    // TODO remove all the old code.
   },
 
   getOrCreateVoiceConnection(interaction) {
