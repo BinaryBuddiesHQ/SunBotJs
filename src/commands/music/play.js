@@ -90,7 +90,7 @@ module.exports = {
       });
 
       // interaction.reply(`queueing: ${info.videoDetails.title}`);
-      interaction.reply(`queueing: `, { embeds: [embed] });
+      interaction.reply({ embeds: [embed] });
     }
     else {
       
