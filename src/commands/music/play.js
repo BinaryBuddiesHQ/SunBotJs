@@ -1,5 +1,8 @@
 const { SlashCommandBuilder } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
+
 const { createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus } = require('@discordjs/voice');
+
 const ytSearch = require('yt-search');
 const ytdl = require('@distube/ytdl-core');
 
@@ -15,6 +18,8 @@ module.exports = {
 
   async execute(interaction) {
     let connection = getVoiceConnection(interaction.guild.id);
+
+    
     if (!connection) {
       const channel = interaction.member.voice.channel;
       if (!channel) {
@@ -66,6 +71,11 @@ module.exports = {
       return;
     }
 
+    const embed = new EmbedBuilder()
+      .setTitle(`${info.videoDetails.title}`)
+      .setDescription(`${info.videoDetails.description}`)
+      .setImage(info.videoDetails.thumbnails[0].url)
+
     // add to queue.
     // if playing queue it up
     if (connection.player.state.status === AudioPlayerStatus.Playing) {
@@ -79,10 +89,14 @@ module.exports = {
         title: info.videoDetails.title
       });
 
-      interaction.reply(`queueing: ${info.videoDetails.title}`);
+      // interaction.reply(`queueing: ${info.videoDetails.title}`);
+      interaction.reply(`queueing: `, { embeds: [embed] });
     }
     else {
+      
+
       console.log('start the song..?')
+
       const audioStream = ytdl(video.url, {
         // format: audioFormat,
         format: 'opus',
@@ -92,7 +106,9 @@ module.exports = {
       const resource = createAudioResource(audioStream);
       connection.player.play(resource);
   
-      interaction.reply(`playing ${info.videoDetails.title}`);
+
+      // interaction.reply(`playing ${info.videoDetails.title}`);
+      interaction.reply({ embeds: [embed] });
     }
   }
 }
