@@ -7,6 +7,7 @@ const { createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPl
 const ytSearch = require('yt-search')
 const ytdl = require('@distube/ytdl-core')
 
+const musicState = require('../../stores/musicStore')
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -53,9 +54,10 @@ module.exports = {
       })
 
       interaction.reply({ embeds: [embed] })
+
     } else {
       // might throw error when no opus? maybe try catch here
-      // Added try/catch clause. Might need better error handling than "console.log e" though.
+      // Added try/catch clause. Update: Might need better error handling than "console.log (e)" though.
       try {
         const audioStream = ytdl(video.url, {
           format: 'opus',
@@ -66,6 +68,12 @@ module.exports = {
         connection.player.play(resource)
   
         interaction.reply({ embeds: [embed] })
+        
+        musicState.playing = {
+          videoUrl: video.url,
+          title: info.videoDetails.title
+        }
+
       } catch (e) {
         console.log(e)
       }
