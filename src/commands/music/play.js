@@ -1,11 +1,11 @@
-const { SlashCommandBuilder } = require('discord.js');
-const { EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js')
+const { EmbedBuilder } = require('discord.js')
 
-const { loadVoiceEvents, loadAudioEvents } = require('../../services/loader-util');
-const { createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus } = require('@discordjs/voice');
+const { loadVoiceEvents, loadAudioEvents } = require('../../services/loader-util')
+const { createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus } = require('@discordjs/voice')
 
-const ytSearch = require('yt-search');
-const ytdl = require('@distube/ytdl-core');
+const ytSearch = require('yt-search')
+const ytdl = require('@distube/ytdl-core')
 
 
 module.exports = {
@@ -19,22 +19,22 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    let connection = this.getOrCreateVoiceConnection(interaction);
+    let connection = this.getOrCreateVoiceConnection(interaction)
     if (!connection) {
-      interaction.reply('>:('); // TODO: real msg
-      return;
+      interaction.reply('SunBot can only be used in a voice channel. Please join a voice channel and try again. Or provide a voice channel in the /join command')
+      return
     } 
 
-    const input = interaction.options.getString('input');
-    const results = await ytSearch(input);
+    const input = interaction.options.getString('input')
+    const results = await ytSearch(input)
 
     if (!results?.videos && results?.videos?.length < 1) {
-      interaction.reply("no hits m'dude");
-      return;
+      interaction.reply("Could not find any songs or videos to match your query")
+      return
     }
 
-    const video = results.videos[0];
-    const info = await ytdl.getInfo(video.url);
+    const video = results.videos[0]
+    const info = await ytdl.getInfo(video.url)
 
     const embed = new EmbedBuilder()
       .setTitle(`${info.videoDetails.title}`)
@@ -44,64 +44,67 @@ module.exports = {
     // add to queue.
     // if playing queue it up
     if (connection.player.state.status === AudioPlayerStatus.Playing) {
-      console.log("i'm already playing something, queue it up");
+      console.log("i'm already playing something, queue it up")
 
-      connection.queue ??= [];
+      connection.queue ??= []
       connection.queue.push({
         videoUrl: video.url,
         title: info.videoDetails.title
-      });
+      })
 
-      interaction.reply({ embeds: [embed] });
-    }
-    else {
+      interaction.reply({ embeds: [embed] })
+    } else {
       // might throw error when no opus? maybe try catch here
-      const audioStream = ytdl(video.url, {
-        format: 'opus',
-        filter: 'audioonly'
-      });
-
-      const resource = createAudioResource(audioStream);
-      connection.player.play(resource);
-
-      interaction.reply({ embeds: [embed] });
+      // Added try/catch clause. Might need better error handling than "console.log e" though.
+      try {
+        const audioStream = ytdl(video.url, {
+          format: 'opus',
+          filter: 'audioonly'
+        })
+  
+        const resource = createAudioResource(audioStream)
+        connection.player.play(resource)
+  
+        interaction.reply({ embeds: [embed] })
+      } catch (e) {
+        console.log(e)
+      }
     }
-    // TODO remove all the old code.
   },
 
   getOrCreateVoiceConnection(interaction) {
     // Check if existing connection
-    let connection = getVoiceConnection(interaction.guild.id);
-    if (connection) return connection;
+    let connection = getVoiceConnection(interaction.guild.id)
+    if (connection) return connection
 
     // No existing connection, and interaction member is not in a channel.
-    const channel = interaction.member.voice.channel;
-    if (!channel) return undefined;
+    const channel = interaction.member.voice.channel
+    if (!channel) return undefined
 
     connection = joinVoiceChannel({
       channelId: channel.id,
       guildId: channel.guild.id,
       adapterCreator: channel.guild.voiceAdapterCreator,
       selfDeaf: false
-    });
+    })
 
     // init voice events
-    const voiceEvents = loadVoiceEvents();
+    const voiceEvents = loadVoiceEvents()
     voiceEvents.forEach(event => {
-      connection.on(event.name, () => event.execute());
-    });
+      connection.on(event.name, () => event.execute())
+    })
 
     // init player and player events
-    const player = createAudioPlayer();
-    connection.player = player;
-    connection.subscribe(player);
+    const player = createAudioPlayer()
+    connection.player = player
+    connection.subscribe(player)
 
-    const playerEvents = loadAudioEvents();
+    const playerEvents = loadAudioEvents()
     playerEvents.forEach(event => {
-      event.interaction = interaction;
-      player.on(event.name, (...args) => event.execute(connection, ...args));
-    });
+      event.interaction = interaction
+      player.on(event.name, (...args) => event.execute(connection, ...args))
+    })
 
-    return connection;
-  },
+    return connection
+  }
 }
