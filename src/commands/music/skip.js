@@ -17,7 +17,7 @@ module.exports = {
 
     if(!connection) {
       console.log(`i'm not in a channel..? so i can't be playing anything...? why skippo..?`)
-      interaction.reply(`SunBot is currently not active in a voice channel and can't skip.`) // TODO: real msg
+      interaction.reply(`SunBot is currently not active in a voice channel and can't skip.`)
       return 
       // No action. Nothing to do. Other than reporting status to user.
       // "No action, not in channel idiot" TODO: Real msg
@@ -57,8 +57,6 @@ module.exports = {
       const resource = createAudioResource(audioStream)
       connection.player.play(resource)
 
-    // TODO: fancy msg with link to the video url
-
-    interaction.reply({embeds: [embed]})
+      interaction.reply({embeds: [embed]})
   }
 }
