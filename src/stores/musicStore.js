@@ -6,6 +6,6 @@ Right now this is only used to keep track of the previous played song when using
 const musicState = {
   queue: [],
   playing: {}
-}
+};
 
-module.exports = musicState
+module.exports = musicState;
