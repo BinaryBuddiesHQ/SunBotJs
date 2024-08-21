@@ -49,7 +49,7 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setTitle(`${info.videoDetails.title}`)
-      .setDescription(`${info.videoDetails.description}`)
+      .setDescription(`${info.videoDetails.description.substring(0, 250)}`)
       .setImage(info.videoDetails.thumbnails[0].url)
       .setURL(info.videoDetails.video_url)
       .setFooter({ text: `Skipping:\n${musicState.playing.title + '\n' + musicState.playing.videoUrl}` });

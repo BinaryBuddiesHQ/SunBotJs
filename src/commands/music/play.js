@@ -39,8 +39,9 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setTitle(`${info.videoDetails.title}`)
-      .setDescription(`${info.videoDetails.description}`)
-      .setImage(info.videoDetails.thumbnails[0].url);
+      .setDescription(`${info.videoDetails.description.substring(0, 250)}`)
+      .setImage(info.videoDetails.thumbnails[0].url)
+      .setFooter({ text: `${ info.videoDetails.video_url }` });
 
     // add to queue.
     // if playing queue it up
