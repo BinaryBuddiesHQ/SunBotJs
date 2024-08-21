@@ -5,8 +5,6 @@ const { getVoiceConnection, createAudioResource, createAudioPlayer } = require("
 
 const ytdl = require("@distube/ytdl-core");
 
-const musicState = require('../../stores/musicStore');
-
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('skip')
@@ -39,9 +37,11 @@ module.exports = {
       return;
     }
 
-    let next = connection.queue.shift();
-    const info = await ytdl.getInfo(next.videoUrl);
+    const currentSong = connection.queue[0];
+    connection.queue.shift();
+    let next = connection.queue[0];
 
+    const info = await ytdl.getInfo(next.videoUrl);
     const audioStream = ytdl(next.videoUrl, {
       format: 'opus',
       filter: 'audioonly'
@@ -52,7 +52,7 @@ module.exports = {
       .setDescription(`${info.videoDetails.description.substring(0, 250)}`)
       .setImage(info.videoDetails.thumbnails[0].url)
       .setURL(info.videoDetails.video_url)
-      .setFooter({ text: `Skipping:\n${musicState.playing.title + '\n' + musicState.playing.videoUrl}` });
+      .setFooter({ text: `Skipping: ${ currentSong.title + ' ' + currentSong.videoUrl }` });
       
       const resource = createAudioResource(audioStream);
       connection.player.play(resource);

@@ -7,8 +7,6 @@ const { createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPl
 const ytSearch = require('yt-search');
 const ytdl = require('@distube/ytdl-core');
 
-const musicState = require('../../stores/musicStore');
-
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('play')
@@ -69,11 +67,11 @@ module.exports = {
         connection.player.play(resource);
   
         interaction.reply({ embeds: [embed] });
-        
-        musicState.playing = {
+
+        connection.queue = [{
           videoUrl: video.url,
           title: info.videoDetails.title
-        };
+        }];
 
       } catch (e) {
         console.log(e);
