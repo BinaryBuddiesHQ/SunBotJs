@@ -25,7 +25,7 @@ module.exports = {
       return;
     }
 
-    if(!connection.queue) {
+    if(connection?.queue?.length < 1 ?? true) {
       // no items in queue? stop? yea
       connection.player.stop();
       // reply TODO: real msg
