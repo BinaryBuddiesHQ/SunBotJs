@@ -1,6 +1,8 @@
-const { getVoiceConnection, createAudioResource, createAudioPlayer } = require("@discordjs/voice");
+const { SlashCommandBuilder } = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
+const { getVoiceConnection} = require("@discordjs/voice");
+
 const ytdl = require("@distube/ytdl-core");
-const { SlashCommandBuilder, InteractionResponse } = require("discord.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -26,8 +28,13 @@ module.exports = {
     }
 
     try {
-      const queueMessage = connection.queue.map((song, index) => `${index + 1}. ${song.title}`).join('\n');
-      await interaction.reply(`Queue:\n${queueMessage}`);
+      const queueMessage = connection.queue.map((song, index) => `${index + 1}. [${song.title}](${song.videoUrl})`).join('\n');
+
+      const embed = new EmbedBuilder()
+      .setTitle(`Current Queue`)
+      .setDescription(`${queueMessage}`);
+
+      await interaction.reply({ embeds: [embed] });
     } catch (error) {
       console.log(error)
       await interaction.reply("An error occured while fetching the queue.");
