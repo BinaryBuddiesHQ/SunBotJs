@@ -52,7 +52,7 @@ module.exports = {
       .setDescription(`${info.videoDetails.description.substring(0, 250)}`)
       .setImage(info.videoDetails.thumbnails[0].url)
       .setURL(info.videoDetails.video_url)
-      .setFooter({ text: `Skipping: ${ currentSong.title + ' ' + currentSong.videoUrl }` });
+      .setFooter({ text: `Skipping: ${ currentSong.title } ${currentSong.videoUrl}` });
       
       const resource = createAudioResource(audioStream);
       connection.player.play(resource);
