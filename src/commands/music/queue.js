@@ -19,20 +19,18 @@ module.exports = {
       await interaction.reply("No player, you probs didn't join a channel. Idiot...");
       return;
     }
-
-    if (connection?.queue?.length < 1) {
-      await interaction.reply("No songs in queue. Stopping playback...");
+    
+    if (!connection.queue || connection.queue.length < 1) {
+      await interaction.reply('No songs in queue.');
       return;
     }
 
-    if(connection?.queue?.length < 1 ?? true) {
-      // no items in queue? stop? yea
-      connection.player.stop();
-      // reply TODO: real msg
-      interaction.reply("No songs in queue. Stopping playback.");
-      return;
+    try {
+      const queueMessage = connection.queue.map((song, index) => `${index + 1}. ${song.title}`).join('\n');
+      await interaction.reply(`Queue:\n${queueMessage}`);
+    } catch (error) {
+      console.log(error)
+      await interaction.reply("An error occured while fetching the queue.");
     }
-
-    interaction.reply(`Queue:\n${connection.queue.map((song, index) => `${index + 1}. ${song.title}`).join('\n')}`);
   }
 }
