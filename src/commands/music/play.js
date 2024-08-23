@@ -7,7 +7,6 @@ const { createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPl
 const ytSearch = require('yt-search');
 const ytdl = require('@distube/ytdl-core');
 
-
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('play')
@@ -21,7 +20,7 @@ module.exports = {
   async execute(interaction) {
     let connection = this.getOrCreateVoiceConnection(interaction);
     if (!connection) {
-      interaction.reply('>:('); // TODO: real msg
+      interaction.reply('SunBot can only be used in a voice channel. Please join a voice channel and try again. Or provide a voice channel in the /join command');
       return;
     } 
 
@@ -29,17 +28,18 @@ module.exports = {
     const results = await ytSearch(input);
 
     if (!results?.videos && results?.videos?.length < 1) {
-      interaction.reply("no hits m'dude");
+      interaction.reply("Could not find any songs or videos to match your query");
       return;
     }
 
     const video = results.videos[0];
-    const info = await ytdl.getInfo(video.url);
+    const info = await ytdl.getInfo(video.url);  // TODO : somwhere here the currently playing song should be queued up. Find a way to save it.
 
     const embed = new EmbedBuilder()
       .setTitle(`${info.videoDetails.title}`)
-      .setDescription(`${info.videoDetails.description}`)
+      .setDescription(`${info.videoDetails.description.substring(0, 250)}`)
       .setImage(info.videoDetails.thumbnails[0].url)
+      .setFooter({ text: `${ info.videoDetails.video_url }` });
 
     // add to queue.
     // if playing queue it up
@@ -53,20 +53,30 @@ module.exports = {
       });
 
       interaction.reply({ embeds: [embed] });
-    }
-    else {
+
+    } else {
       // might throw error when no opus? maybe try catch here
-      const audioStream = ytdl(video.url, {
-        format: 'opus',
-        filter: 'audioonly'
-      });
+      // Added try/catch clause. Update: Might need better error handling than "console.log (e)" though.
+      try {
+        const audioStream = ytdl(video.url, {
+          format: 'opus',
+          filter: 'audioonly'
+        });
+  
+        const resource = createAudioResource(audioStream);
+        connection.player.play(resource);
+  
+        interaction.reply({ embeds: [embed] });
 
-      const resource = createAudioResource(audioStream);
-      connection.player.play(resource);
+        connection.queue = [{
+          videoUrl: video.url,
+          title: info.videoDetails.title
+        }];
 
-      interaction.reply({ embeds: [embed] });
+      } catch (e) {
+        console.log(e);
+      }
     }
-    // TODO remove all the old code.
   },
 
   getOrCreateVoiceConnection(interaction) {
@@ -98,10 +108,10 @@ module.exports = {
 
     const playerEvents = loadAudioEvents();
     playerEvents.forEach(event => {
-      event.interaction = interaction;
+      event.interaction = interaction
       player.on(event.name, (...args) => event.execute(connection, ...args));
     });
 
     return connection;
-  },
+  }
 }
