@@ -1,6 +1,8 @@
 const { GatewayIntentBits, Client } = require('discord.js');
 const { token } = require('./config.json');
 const { loadCommands, loadClientEvents } = require('./services/loader-util');
+const { mongodb } = require('./data/db-context.js');
+
 
 const client = new Client({
 	intents: [
@@ -20,8 +22,6 @@ events.forEach(event => {
 client.login(token);
 
 
-
-
 process.on('uncaughtException', (error) => {
 	console.error(('Uncaught exception: ', error));
 });
@@ -35,13 +35,18 @@ process.on('SIGTERM', async () => {
 });
 
 gracefulShutdown = async () => {
-	await client.destroy()
-		.then(() => {
-			console.log('Client destroyed, exiting process.');
-			process.exit(0);
-		})
-		.catch(err => {
-			console.error('Error during shutdown: ', err);
-			process.exit(1);
-		});
+	try {
+		if (mongodb?.client) {
+			await mongodb.client.close();
+			console.log("MongoDB connection closed.");
+		}
+
+		await client.destroy();
+		console.log('Client destroyed, exiting process.');
+		process.exit(0);
+
+	} catch (error) {
+		console.error('Error during shutdown: ', error);
+		process.exit(1);
+	}
 }

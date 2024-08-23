@@ -1,5 +1,11 @@
 const { ActionRowBuilder, EmbedBuilder } = require("@discordjs/builders");
 const { SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType, MessageCollector, InteractionCollector } = require("discord.js");
+const { mongodb } = require('../../data/db-context');
+
+
+// TODO: implement on message delete event handler.
+// need to clear data from mongodb if messages are deleted, or collectors timeout or other scenarios.
+// not mission critical, but more convenient than clearing dbs every now and then by hand.
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -7,6 +13,11 @@ module.exports = {
     .setDescription('Start a blackjack session!'),
 
   async execute(interaction) {
+    if(!mongodb.connected) {
+      console.log("DB CONTEXT REQUIRED FOR THIS COMMAND"); // TODO: interaction response
+      return;
+    }
+
     const joinButton = new ButtonBuilder()
       .setCustomId('join')
       .setLabel('Join table')
@@ -66,9 +77,14 @@ function join(interaction) {
   // if(stateholder.players.exists(interaction.user))
   //   interaction.reply("you're already in the game");
 
-  // add user to some state holder
+  // add user to mongodb blackjack game based on original interaction id
 
-  // in memory to start with, maybe we could do mongodb or sqlite or somesuch whenever the need arises.
+  var originalInteractionId = interaction.message.interaction.id;
+  mongodb.createOrUpdateAsync('blackjack', originalInteractionId, 
+    {
+      name: "Join"
+    }
+  );
 
   interaction.reply({
     content: 'join clickeroo',
@@ -86,6 +102,15 @@ function start(interaction) {
   // render buttons, hit stand stop
 
   // new collector here for gameloop events?
+  
+
+  // original interaction id
+  var originalInteractionId = interaction.message.interaction.id;
+  mongodb.createOrUpdateAsync('blackjack', originalInteractionId, 
+    {
+      name: "Start"
+    }
+  );
 
   interaction.reply({
     content: 'start clickeroo',
@@ -96,6 +121,14 @@ function start(interaction) {
 function cancel(interaction) {
 
   // shared stop game function?
+  
+  // original interaction id
+  var originalInteractionId = interaction.message.interaction.id;
+  mongodb.createOrUpdateAsync('blackjack', originalInteractionId, 
+    {
+      name: "cancel"
+    }
+  );
 
   interaction.reply({
     content: 'cancel clickeroo',
