@@ -7,13 +7,15 @@ const { mongodb } = require('../../data/db-context');
 // need to clear data from mongodb if messages are deleted, or collectors timeout or other scenarios.
 // not mission critical, but more convenient than clearing dbs every now and then by hand.
 
+const collectionName = 'blackjack'; // TEMP or other solution
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('blackjack')
     .setDescription('Start a blackjack session!'),
 
   async execute(interaction) {
-    if(!mongodb.connected) {
+    if (!mongodb.connected) {
       console.log("DB CONTEXT REQUIRED FOR THIS COMMAND"); // TODO: interaction response
       return;
     }
@@ -36,6 +38,7 @@ module.exports = {
     const row = new ActionRowBuilder()
       .addComponents(joinButton, startButton, cancelButton);
 
+    // TODO: Actual 'start' content
     const embed = new EmbedBuilder()
       .setTitle(`Foobar`)
       .setDescription(`Barfoo`);
@@ -43,9 +46,15 @@ module.exports = {
     const response = await interaction.reply({
       embeds: [embed],
       components: [row],
-      ephemeral: true
     });
 
+    mongodb.createOrUpdateAsync(collectionName, interaction.id, {
+      players: [],
+      // TODO: gamestate 'not started'
+    });
+
+
+    // Handle events
     const collector = response.createMessageComponentCollector({
       componentType: ComponentType.Button,
       time: 3_600_000
@@ -55,7 +64,7 @@ module.exports = {
       'join': join,
       'start': start,
       'cancel': cancel,
-    }
+    };
 
     collector.on('collect', async i => {
       const handler = handlers[i.customId];
@@ -64,7 +73,7 @@ module.exports = {
       }
       catch (error) {
         await i.reply({
-          content: `Unknown interaction.`,
+          content: `ERROR: BLACKJACK: ${error}`,
           ephemeral: true
         });
       }
@@ -72,24 +81,40 @@ module.exports = {
   },
 }
 
-function join(interaction) {
-  // no duplicates
-  // if(stateholder.players.exists(interaction.user))
-  //   interaction.reply("you're already in the game");
+async function join(interaction) {
+  var originalInteraction = interaction.message.interaction;
+  const game = await mongodb.getAsync(collectionName, originalInteraction.id);
 
-  // add user to mongodb blackjack game based on original interaction id
+  if (game.players.find(player => player.id === interaction.user.id)) {
+    interaction.reply({
+      content: "you're already in the game dumbo",
+      ephemeral: true
+    });
+  }
+  else {
+    game.players.push(
+      {
+        id: interaction.user.id,
+        name: interaction.user.displayName
+      }
+    );
 
-  var originalInteractionId = interaction.message.interaction.id;
-  mongodb.createOrUpdateAsync('blackjack', originalInteractionId, 
-    {
-      name: "Join"
-    }
-  );
+    await mongodb.createOrUpdateAsync(collectionName, originalInteraction.id, game);
+    
+    const players = game.players.map(player => `- ${player.name}\n`);
+    const embed = new EmbedBuilder()
+      .setTitle(`Current players: `)
+      .setDescription(`${players}`);
 
-  interaction.reply({
-    content: 'join clickeroo',
-    ephemeral: true
-  });
+    interaction.message.edit({
+      embeds: [embed]
+    });
+
+    interaction.reply({
+      content: "joined game",
+      ephemeral: true,
+    });
+  }
 }
 
 function start(interaction) {
@@ -102,11 +127,11 @@ function start(interaction) {
   // render buttons, hit stand stop
 
   // new collector here for gameloop events?
-  
+
 
   // original interaction id
   var originalInteractionId = interaction.message.interaction.id;
-  mongodb.createOrUpdateAsync('blackjack', originalInteractionId, 
+  mongodb.createOrUpdateAsync(collectionName, originalInteractionId,
     {
       name: "Start"
     }
@@ -121,10 +146,10 @@ function start(interaction) {
 function cancel(interaction) {
 
   // shared stop game function?
-  
+
   // original interaction id
   var originalInteractionId = interaction.message.interaction.id;
-  mongodb.createOrUpdateAsync('blackjack', originalInteractionId, 
+  mongodb.createOrUpdateAsync(collectionName, originalInteractionId,
     {
       name: "cancel"
     }

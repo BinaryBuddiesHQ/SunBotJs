@@ -1,5 +1,4 @@
 const { MongoClient } = require('mongodb');
-const { ObjectId } = require("mongodb");
 const { mongodb } = require('../config.json');
 
 class MongoDb {
@@ -47,12 +46,14 @@ class MongoDb {
   }
 
   // TODO: implement
-  async deleteAsync(collectionName, id) {
-    console.error("NOT IMPLEMENTED");
+  async getAsync(collectionName, id) {
+    const collection = this.context.collection(collectionName);
+    const query = { id: id };
+    return collection.findOne(query);
   }
 
   // TODO: implement
-  async getAsync(collectionName, id) {
+  async deleteAsync(collectionName, id) {
     console.error("NOT IMPLEMENTED");
   }
 }
