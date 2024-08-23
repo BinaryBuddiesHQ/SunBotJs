@@ -45,7 +45,6 @@ class MongoDb {
     // TODO: handle result
   }
 
-  // TODO: implement
   async getAsync(collectionName, id) {
     const collection = this.context.collection(collectionName);
     const query = { id: id };
