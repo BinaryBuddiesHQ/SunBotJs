@@ -40,6 +40,12 @@ module.exports = {
     const currentSong = connection.queue[0];
     connection.queue.shift();
     let next = connection.queue[0];
+    // TODO: next is nullish here on queue size 1.
+    // row 40: take index 0 from queue;
+    // row 41: remove index 0 from queue;
+    // row 42: take index 0 from queue;
+    // the resulting value for variable next is therefore undefined/null.
+    // could move code block on row: 31-37 below these lines to account for the empty queue.
 
     const info = await ytdl.getInfo(next.videoUrl);
     const audioStream = ytdl(next.videoUrl, {
