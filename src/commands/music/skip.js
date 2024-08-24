@@ -28,24 +28,17 @@ module.exports = {
       return;
     }
 
-    if(connection?.queue?.length < 1 ?? true) {
-      // no items in queue? stop? yea
-      connection.player.stop();
-
-      // reply TODO: real msg
-      interaction.reply('No songs in queue. Stopping playback. Use /play <url> to add songs to queue.');
-      return;
-    }
-
     const currentSong = connection.queue[0];
     connection.queue.shift();
     let next = connection.queue[0];
-    // TODO: next is nullish here on queue size 1.
-    // row 40: take index 0 from queue;
-    // row 41: remove index 0 from queue;
-    // row 42: take index 0 from queue;
-    // the resulting value for variable next is therefore undefined/null.
-    // could move code block on row: 31-37 below these lines to account for the empty queue.
+
+    if(!connection.queue || connection.queue.length < 1) {
+      // no items in queue? stop? yea
+      connection.player.stop();
+
+      interaction.reply('No songs in queue. Stopping playback. Use /play <url> to add songs to queue.');
+      return;
+    }
 
     const info = await ytdl.getInfo(next.videoUrl);
     const audioStream = ytdl(next.videoUrl, {
