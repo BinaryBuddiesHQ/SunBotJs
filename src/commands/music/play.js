@@ -1,13 +1,20 @@
-const { SlashCommandBuilder } = require('discord.js');
-const { EmbedBuilder } = require('discord.js');
+// const {  } = require('');
+import {SlashCommandBuilder} from 'discord.js';
 
-const { loadVoiceEvents, loadAudioEvents } = require('../../services/loader-util');
-const { createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus } = require('@discordjs/voice');
+// const {  } = require('');
 
-const ytSearch = require('yt-search');
-const ytdl = require('@distube/ytdl-core');
+import {EmbedBuilder} from 'discord.js';
 
-module.exports = {
+// const {  } = require('');
+// const {  } = require('');
+import { loadVoiceEvents, loadAudioEvents } from '../../services/loader-util.js';
+import {createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus} from '@discordjs/voice';
+import ytSearch from 'yt-search'
+// import {} from ''
+// const  = require('');
+import ytdl from'@distube/ytdl-core';
+
+export default {
   data: new SlashCommandBuilder()
     .setName('play')
     .setDescription('Plays a song')

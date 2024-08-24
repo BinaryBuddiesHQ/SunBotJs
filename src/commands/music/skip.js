@@ -1,11 +1,11 @@
-const { SlashCommandBuilder, InteractionResponse } = require("discord.js");
-const { EmbedBuilder } = require("discord.js");
+import { SlashCommandBuilder, InteractionResponse } from "discord.js";
+import { EmbedBuilder }  from "discord.js";
 
-const { getVoiceConnection, createAudioResource, createAudioPlayer } = require("@discordjs/voice");
+import { getVoiceConnection, createAudioResource, createAudioPlayer }  from "@discordjs/voice";
 
-const ytdl = require("@distube/ytdl-core");
+import ytdl from "@distube/ytdl-core";
 
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName('skip')
     .setDescription('Skips the current song.'),

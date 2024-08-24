@@ -1,8 +1,13 @@
-const { joinVoiceChannel, createAudioPlayer } = require('@discordjs/voice');
-const { SlashCommandBuilder, ChannelType } = require('discord.js');
-const { loadVoiceEvents, loadAudioEvents } = require('../../services/loader-util');
+// const { joinVoiceChannel, createAudioPlayer } = require('@discordjs/voice');
+import { joinVoiceChannel, createAudioPlayer } from  '@discordjs/voice';
 
-module.exports = {
+// const {  } = require('discord.js');
+import { SlashCommandBuilder, ChannelType } from 'discord.js';
+
+// const {  } = require('../../services/loader-util');
+import { loadVoiceEvents, loadAudioEvents } from '../../services/loader-util.js';
+
+export default {
   data: new SlashCommandBuilder()
     .setName('join')
     .setDescription('Joins your current channel, or a channel of your choice.')

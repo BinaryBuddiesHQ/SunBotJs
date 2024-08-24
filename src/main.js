@@ -15,15 +15,14 @@ const client = new Client({
 	]
 });
 
-client.commands = loadCommands();
+client.commands = await loadCommands();
 const events = await loadClientEvents();
 events.forEach(event => {
 	if (event.once)
 		client.once(event.name, (...args) => event.execute(...args));
 	else client.on(event.name, (...args) => event.execute(...args));
 });
-
-client.login(config.token);
+client.login(config.config.token);
 
 process.on('uncaughtException', (error) => {
 	console.error(('Uncaught exception: ', error));
@@ -37,7 +36,7 @@ process.on('SIGTERM', async () => {
 	gracefulShutdown();
 });
 
-gracefulShutdown = async () => {
+async function gracefulShutdown () {
 	await client.destroy()
 		.then(() => {
 			console.log('Client destroyed, exiting process.');
