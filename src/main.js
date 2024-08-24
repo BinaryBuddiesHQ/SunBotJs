@@ -1,6 +1,12 @@
-const { GatewayIntentBits, Client } = require('discord.js');
-const { token } = require('./config.json');
-const { loadCommands, loadClientEvents } = require('./services/loader-util');
+// const { GatewayIntentBits, Client } = require('discord.js');
+import { GatewayIntentBits, Client } from 'discord.js';
+
+// const { token } = require('./config.json');
+import config  from './config.json' assert { type: 'json' };
+
+
+// const { loadCommands, loadClientEvents } = require('./services/loader-util');
+import { loadCommands, loadClientEvents } from './services/loader-util.js';
 
 const client = new Client({
 	intents: [
@@ -10,17 +16,14 @@ const client = new Client({
 });
 
 client.commands = loadCommands();
-const events = loadClientEvents();
+const events = await loadClientEvents();
 events.forEach(event => {
 	if (event.once)
 		client.once(event.name, (...args) => event.execute(...args));
 	else client.on(event.name, (...args) => event.execute(...args));
 });
 
-client.login(token);
-
-
-
+client.login(config.token);
 
 process.on('uncaughtException', (error) => {
 	console.error(('Uncaught exception: ', error));
