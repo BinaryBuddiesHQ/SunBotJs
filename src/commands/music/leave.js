@@ -1,7 +1,7 @@
-const { getVoiceConnection } = require('@discordjs/voice')
-const { SlashCommandBuilder } = require('discord.js')
+import { getVoiceConnection } from '@discordjs/voice'
+import { SlashCommandBuilder } from 'discord.js'
 
-module.exports = {
+const command = {
   data: new SlashCommandBuilder()
     .setName('leave')
     .setDescription('Leave'),
@@ -26,3 +26,5 @@ module.exports = {
     }
   }
 }
+
+export default command;

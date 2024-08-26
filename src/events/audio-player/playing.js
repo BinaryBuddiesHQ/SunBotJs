@@ -1,6 +1,6 @@
-const { AudioPlayerStatus } = require('@discordjs/voice');
+import { AudioPlayerStatus } from '@discordjs/voice';
 
-module.exports = {
+export default {
   name: AudioPlayerStatus.Playing,
   execute(connection, oldState, newState) {
     console.log('audio Playing...');

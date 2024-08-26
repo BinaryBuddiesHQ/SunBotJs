@@ -4,6 +4,7 @@
   "description": "Discord bot",
   "private": true,
   "main": "src/main.js",
+  "type": "module",
   "scripts": {
     "dev": "node .",
     "deploy": "node ./src/services/deploy-commands.js",

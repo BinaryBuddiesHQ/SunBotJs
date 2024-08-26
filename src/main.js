@@ -1,8 +1,6 @@
-const { GatewayIntentBits, Client } = require('discord.js');
-const { token } = require('./config.json');
-const { loadCommands, loadClientEvents } = require('./services/loader-util');
-const { mongodb } = require('./data/db-context.js');
-
+import { GatewayIntentBits, Client } from 'discord.js';
+import { loadCommands, loadClientEvents } from './services/loader-util.js';
+import config  from './config.json' assert { type: 'json' };
 
 const client = new Client({
 	intents: [
@@ -11,15 +9,15 @@ const client = new Client({
 	]
 });
 
-client.commands = loadCommands();
-const events = loadClientEvents();
+client.commands = await loadCommands();
+const events = await loadClientEvents();
 events.forEach(event => {
 	if (event.once)
 		client.once(event.name, (...args) => event.execute(...args));
 	else client.on(event.name, (...args) => event.execute(...args));
 });
 
-client.login(token);
+client.login(config.config.token);
 
 
 process.on('uncaughtException', (error) => {

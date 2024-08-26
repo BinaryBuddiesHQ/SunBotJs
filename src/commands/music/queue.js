@@ -1,10 +1,7 @@
-const { SlashCommandBuilder } = require("discord.js");
-const { EmbedBuilder } = require("discord.js");
-const { getVoiceConnection} = require("@discordjs/voice");
+import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { getVoiceConnection} from "@discordjs/voice";
 
-const ytdl = require("@distube/ytdl-core");
-
-module.exports = {
+const command =  {
   data: new SlashCommandBuilder()
     .setName('queue')
     .setDescription('Shows the current queue.'),
@@ -41,3 +38,5 @@ module.exports = {
     }
   }
 }
+
+export default command;

@@ -1,13 +1,11 @@
-const { SlashCommandBuilder } = require('discord.js');
-const { EmbedBuilder } = require('discord.js');
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { loadVoiceEvents, loadAudioEvents } from '../../services/loader-util.js';
+import {createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus} from '@discordjs/voice';
 
-const { loadVoiceEvents, loadAudioEvents } = require('../../services/loader-util');
-const { createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus } = require('@discordjs/voice');
+import ytSearch from 'yt-search'
+import ytdl from'@distube/ytdl-core';
 
-const ytSearch = require('yt-search');
-const ytdl = require('@distube/ytdl-core');
-
-module.exports = {
+const command = {
   data: new SlashCommandBuilder()
     .setName('play')
     .setDescription('Plays a song')
@@ -18,7 +16,7 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    let connection = this.getOrCreateVoiceConnection(interaction);
+    const connection = await this.getOrCreateVoiceConnection(interaction);
     if (!connection) {
       interaction.reply('SunBot can only be used in a voice channel. Please join a voice channel and try again. Or provide a voice channel in the /join command');
       return;
@@ -79,7 +77,7 @@ module.exports = {
     }
   },
 
-  getOrCreateVoiceConnection(interaction) {
+  async getOrCreateVoiceConnection(interaction) {
     // Check if existing connection
     let connection = getVoiceConnection(interaction.guild.id);
     if (connection) return connection;
@@ -96,7 +94,7 @@ module.exports = {
     });
 
     // init voice events
-    const voiceEvents = loadVoiceEvents();
+    const voiceEvents = await loadVoiceEvents();
     voiceEvents.forEach(event => {
       connection.on(event.name, () => event.execute());
     });
@@ -106,7 +104,7 @@ module.exports = {
     connection.player = player;
     connection.subscribe(player);
 
-    const playerEvents = loadAudioEvents();
+    const playerEvents = await loadAudioEvents();
     playerEvents.forEach(event => {
       event.interaction = interaction
       player.on(event.name, (...args) => event.execute(connection, ...args));
@@ -115,3 +113,5 @@ module.exports = {
     return connection;
   }
 }
+
+export default command;
