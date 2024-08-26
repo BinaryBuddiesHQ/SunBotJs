@@ -18,20 +18,11 @@ export async function loadCommands() {
     const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
     for (const file of commandFiles) {
-      if (['ping.js', 'server.js', 'user.js'].includes(file)) {
-        console.log(`Skipping command file: ${file}`);
-        continue;
-      }
-
       const filePath = path.join(commandsPath, file);
       const fileUrl = pathToFileURL(filePath).href;
 
       try {
-        const commandModule = await import(fileUrl);
-        const command = commandModule.default;
-
-        // Debug logging
-        console.log(`Loaded command from ${fileUrl}:`, command);
+        const command = await import(fileUrl).then(module => module.default);
 
         if (command && 'data' in command && 'execute' in command) {
           commands.set(command.data.name, command);
@@ -51,7 +42,7 @@ export async function loadClientEvents() {
   const events = [];
   const eventsPath = path.join(__dirname, '../events/client');
   
-  console.log(`Scanning directory: ${eventsPath}`); // Log the directory being scanned
+  // console.log(`Scanning directory: ${eventsPath}`); // Log the directory being scanned
 
   try {
     const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));

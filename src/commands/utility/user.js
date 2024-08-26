@@ -1,6 +1,6 @@
-/* const { SlashCommandBuilder } = require('discord.js');
+import { SlashCommandBuilder } from 'discord.js';
 
-module.exports = {
+const command = {
 	data: new SlashCommandBuilder()
 		.setName('user')
 		.setDescription('Provides information about the user.'),
@@ -10,4 +10,6 @@ module.exports = {
 		// interaction.member is the GuildMember object, which represents the user in the specific guild
 		await interaction.reply(`This command was run by ${interaction.user.username}, who joined on ${interaction.member.joinedAt}.`);
 	},
-}; */
+};
+
+export default command;

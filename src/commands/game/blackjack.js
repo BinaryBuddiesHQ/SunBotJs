@@ -1,7 +1,6 @@
-const { ActionRowBuilder, EmbedBuilder } = require("@discordjs/builders");
-const { SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType, MessageCollector, InteractionCollector } = require("discord.js");
-const { mongodb } = require('../../data/db-context');
-
+import { ActionRowBuilder, EmbedBuilder } from '@discordjs/builders';
+import { SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType, MessageCollector, InteractionCollector } from 'discord.js';
+import mongodb from '../../data/db-context.js';
 
 // TODO: implement on message delete event handler.
 // need to clear data from mongodb if messages are deleted, or collectors timeout or other scenarios.
@@ -9,7 +8,7 @@ const { mongodb } = require('../../data/db-context');
 
 const collectionName = 'blackjack'; // TEMP or other solution
 
-module.exports = {
+const command = {
   data: new SlashCommandBuilder()
     .setName('blackjack')
     .setDescription('Start a blackjack session!'),
@@ -160,3 +159,5 @@ function cancel(interaction) {
     ephemeral: true
   });
 }
+
+export default command;

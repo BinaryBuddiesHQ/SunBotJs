@@ -1,37 +1,36 @@
-const { MongoClient } = require('mongodb');
-const { mongodb } = require('../config.json');
+import { MongoClient } from 'mongodb';
+import config from '../config.json' assert  { type: 'json' }
 
 class MongoDb {
   client;
   context;
-  connected;
+  connected = false;
 
   constructor() {
-    if (!mongodb?.connectionString) {
+    if (MongoDb.instance)
+      return MongoDb.instance;
+  }
+
+  async init() {
+    if (!config?.mongodb) {
       console.log("No MongoDB connection string found. Skipping database initialization.");
       return;
     }
 
-    if (MongoDb.instance)
-      return MongoDb.instance;
+    try {
+      this.client = new MongoClient(config?.mongodb?.connectionString);
+      await this.client.connect();
 
-    // HACK: don't async in ctor
-    (async () => {
-      try {
-        this.client = new MongoClient(mongodb.connectionString);
-        await this.client.connect();
+      this.context = this.client.db(config?.mongodb?.database);
+      console.log('MongoDB connection established.');
+      this.connected = true;
 
-        this.context = this.client.db(mongodb.database);
-        console.log('MongoDB connection established.');
-        this.connected = true;
+    } catch (error) {
+      console.error('Failed to connect to MongoDB.', error);
+      this.connected = false;
+    }
 
-      } catch (error) {
-        console.error('Failed to connect to MongoDB.', error);
-        this.connected = false;
-      }
-
-      MongoDb.instance = this;
-    })();
+    MongoDb.instance = this;
   }
 
   async createOrUpdateAsync(collectionName, id, data) {
@@ -58,4 +57,8 @@ class MongoDb {
 }
 
 
-module.exports = { mongodb: new MongoDb() };
+const mongodb = new MongoDb();
+if (!mongodb.connected)
+  mongodb.init();
+
+export default mongodb;

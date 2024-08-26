@@ -31,7 +31,7 @@ const command = {
     }
 
     const video = results.videos[0];
-    const info = await ytdl.getInfo(video.url);  // TODO : somwhere here the currently playing song should be queued up. Find a way to save it.
+    const info = await ytdl.getInfo(video.url);
 
     const embed = new EmbedBuilder()
       .setTitle(`${info.videoDetails.title}`)

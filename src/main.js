@@ -1,6 +1,7 @@
 import { GatewayIntentBits, Client } from 'discord.js';
 import { loadCommands, loadClientEvents } from './services/loader-util.js';
 import config  from './config.json' assert { type: 'json' };
+import mongodb from './data/db-context.js';
 
 const client = new Client({
 	intents: [
@@ -17,7 +18,7 @@ events.forEach(event => {
 	else client.on(event.name, (...args) => event.execute(...args));
 });
 
-client.login(config.config.token);
+client.login(config.bot.token);
 
 
 process.on('uncaughtException', (error) => {
@@ -32,7 +33,7 @@ process.on('SIGTERM', async () => {
 	gracefulShutdown();
 });
 
-gracefulShutdown = async () => {
+async function gracefulShutdown() {
 	try {
 		if (mongodb?.client) {
 			await mongodb.client.close();
