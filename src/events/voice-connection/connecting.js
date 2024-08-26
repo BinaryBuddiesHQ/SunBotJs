@@ -1,6 +1,6 @@
-const { VoiceConnectionStatus } = require("@discordjs/voice");
+import { VoiceConnectionStatus } from "@discordjs/voice";
 
-module.exports = {
+export default {
   name: VoiceConnectionStatus.Connecting,
   execute() {
     console.log('Connecting voice connection...');

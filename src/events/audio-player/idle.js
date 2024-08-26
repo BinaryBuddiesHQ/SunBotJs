@@ -1,7 +1,8 @@
-const { AudioPlayerStatus, createAudioResource } = require('@discordjs/voice');
-const ytdl = require('@distube/ytdl-core');
+import { AudioPlayerStatus, createAudioResource } from '@discordjs/voice';
 
-module.exports = {
+import ytdl from '@distube/ytdl-core';
+
+export default {
   name: AudioPlayerStatus.Idle,
   execute(connection, oldState, newState) {
     if (connection?.queue?.length > 0) {
@@ -19,6 +20,5 @@ module.exports = {
     else {
       // TODO: interaction channel reply ("queue empty etc etc")
     }
-
   }
 }

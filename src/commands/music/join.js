@@ -1,13 +1,8 @@
-// const { joinVoiceChannel, createAudioPlayer } = require('@discordjs/voice');
 import { joinVoiceChannel, createAudioPlayer } from  '@discordjs/voice';
-
-// const {  } = require('discord.js');
 import { SlashCommandBuilder, ChannelType } from 'discord.js';
-
-// const {  } = require('../../services/loader-util');
 import { loadVoiceEvents, loadAudioEvents } from '../../services/loader-util.js';
 
-export default {
+const command =  {
   data: new SlashCommandBuilder()
     .setName('join')
     .setDescription('Joins your current channel, or a channel of your choice.')
@@ -33,7 +28,7 @@ export default {
       selfDeaf: false
     });
 
-    const events = loadVoiceEvents();
+    const events = await loadVoiceEvents();
     events.forEach(event => {
       connection.on(event.name, () => event.execute());
     });
@@ -42,7 +37,7 @@ export default {
     connection.player = player;
     connection.subscribe(player);
     
-    const playerEvents = loadAudioEvents();
+    const playerEvents = await loadAudioEvents();
     playerEvents.forEach(event => {
       event.interaction = interaction;
       player.on(event.name, (...args) => event.execute(connection, ...args));
@@ -51,3 +46,5 @@ export default {
     await interaction.reply(`Ready to rock!`);
   }
 }
+
+export default command;

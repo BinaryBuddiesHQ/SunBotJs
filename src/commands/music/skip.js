@@ -1,11 +1,10 @@
-import { SlashCommandBuilder, InteractionResponse } from "discord.js";
+import { SlashCommandBuilder} from "discord.js";
 import { EmbedBuilder }  from "discord.js";
-
-import { getVoiceConnection, createAudioResource, createAudioPlayer }  from "@discordjs/voice";
+import { getVoiceConnection, createAudioResource}  from "@discordjs/voice";
 
 import ytdl from "@distube/ytdl-core";
 
-export default {
+const command = {
   data: new SlashCommandBuilder()
     .setName('skip')
     .setDescription('Skips the current song.'),
@@ -60,3 +59,5 @@ export default {
       interaction.reply({embeds: [embed]});
   }
 }
+
+export default command;

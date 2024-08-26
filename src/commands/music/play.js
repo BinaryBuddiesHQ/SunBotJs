@@ -1,20 +1,11 @@
-// const {  } = require('');
-import {SlashCommandBuilder} from 'discord.js';
-
-// const {  } = require('');
-
-import {EmbedBuilder} from 'discord.js';
-
-// const {  } = require('');
-// const {  } = require('');
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { loadVoiceEvents, loadAudioEvents } from '../../services/loader-util.js';
 import {createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus} from '@discordjs/voice';
+
 import ytSearch from 'yt-search'
-// import {} from ''
-// const  = require('');
 import ytdl from'@distube/ytdl-core';
 
-export default {
+const command = {
   data: new SlashCommandBuilder()
     .setName('play')
     .setDescription('Plays a song')
@@ -25,7 +16,7 @@ export default {
     ),
 
   async execute(interaction) {
-    let connection = this.getOrCreateVoiceConnection(interaction);
+    const connection = await this.getOrCreateVoiceConnection(interaction);
     if (!connection) {
       interaction.reply('SunBot can only be used in a voice channel. Please join a voice channel and try again. Or provide a voice channel in the /join command');
       return;
@@ -86,7 +77,7 @@ export default {
     }
   },
 
-  getOrCreateVoiceConnection(interaction) {
+  async getOrCreateVoiceConnection(interaction) {
     // Check if existing connection
     let connection = getVoiceConnection(interaction.guild.id);
     if (connection) return connection;
@@ -103,7 +94,7 @@ export default {
     });
 
     // init voice events
-    const voiceEvents = loadVoiceEvents();
+    const voiceEvents = await loadVoiceEvents();
     voiceEvents.forEach(event => {
       connection.on(event.name, () => event.execute());
     });
@@ -113,7 +104,7 @@ export default {
     connection.player = player;
     connection.subscribe(player);
 
-    const playerEvents = loadAudioEvents();
+    const playerEvents = await loadAudioEvents();
     playerEvents.forEach(event => {
       event.interaction = interaction
       player.on(event.name, (...args) => event.execute(connection, ...args));
@@ -122,3 +113,5 @@ export default {
     return connection;
   }
 }
+
+export default command;
