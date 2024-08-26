@@ -1,12 +1,7 @@
-// const { GatewayIntentBits, Client } = require('discord.js');
 import { GatewayIntentBits, Client } from 'discord.js';
-
-// const { token } = require('./config.json');
-import config  from './config.json' assert { type: 'json' };
-
-
-// const { loadCommands, loadClientEvents } = require('./services/loader-util');
 import { loadCommands, loadClientEvents } from './services/loader-util.js';
+
+import config  from './config.json' assert { type: 'json' };
 
 const client = new Client({
 	intents: [
