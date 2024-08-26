@@ -1,11 +1,9 @@
-const { SlashCommandBuilder } = require('discord.js');
-const { EmbedBuilder } = require ('discord.js');  // HACK : will be set in use later, just need it to work first.
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { getVoiceConnection, AudioPlayerStatus } from '@discordjs/voice';
 
-const { getVoiceConnection, AudioPlayerStatus } = require('@discordjs/voice');
+import ytdl from '@distube/ytdl-core';
 
-const ytdl = require('@distube/ytdl-core');
-
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
   .setName('stop')
   .setDescription(`Stops the current song in it's track`),

@@ -1,12 +1,9 @@
-const { SlashCommandBuilder} = require('discord.js');
-const { EmbedBuilder } = require('discord.js');
+import { SlashCommandBuilder, EmbedBuilder} from 'discord.js';
+import { getVoiceConnection, createAudioResource } from '@discordjs/voice';
 
-const { getVoiceConnection, createAudioResource } = require('@discordjs/voice');
+import ytdl  from '@distube/ytdl-core'
 
-const ytdl = require('@distube/ytdl-core');
-const { execute } = require('./stop'); // TODO : remove this? I think this got auto imported??
-
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
   .setName('start')
   .setDescription('Starts the current song in it\'s track'),
