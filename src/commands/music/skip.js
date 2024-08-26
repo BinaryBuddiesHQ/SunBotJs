@@ -27,18 +27,17 @@ const command = {
       return;
     }
 
-    if(connection?.queue?.length < 1 ?? true) {
-      // no items in queue? stop? yea
-      connection.player.stop();
-
-      // reply TODO: real msg
-      interaction.reply('No songs in queue. Stopping playback. Use /play <url> to add songs to queue.');
-      return;
-    }
-
     const currentSong = connection.queue[0];
     connection.queue.shift();
     let next = connection.queue[0];
+
+    if(!connection.queue || connection.queue.length < 1) {
+      // no items in queue? stop? yea
+      connection.player.stop();
+
+      interaction.reply('No songs in queue. Stopping playback. Use /play <url> to add songs to queue.');
+      return;
+    }
 
     const info = await ytdl.getInfo(next.videoUrl);
     const audioStream = ytdl(next.videoUrl, {
