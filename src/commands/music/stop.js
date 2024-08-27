@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { getVoiceConnection, AudioPlayerStatus } from '@discordjs/voice';
-import ytdl from '@distube/ytdl-core';
 
 export default {
   data: new SlashCommandBuilder()
