@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
-import { getVoiceConnection} from "@discordjs/voice";
+import { getVoiceConnection } from "@discordjs/voice";
 
-const command =  {
+export default {
   data: new SlashCommandBuilder()
     .setName('queue')
     .setDescription('Shows the current queue.'),
@@ -18,7 +18,7 @@ const command =  {
       await interaction.reply("No player, you probs didn't join a channel. Idiot...");
       return;
     }
-    
+
     if (!connection.queue || connection.queue.length < 1) {
       await interaction.reply('No songs in queue.');
       return;
@@ -28,8 +28,8 @@ const command =  {
       const queueMessage = connection.queue.map((song, index) => `${index + 1}. [${song.title}](${song.videoUrl})`).join('\n');
 
       const embed = new EmbedBuilder()
-      .setTitle(`Current Queue`)
-      .setDescription(`${queueMessage}`);
+        .setTitle(`Current Queue`)
+        .setDescription(`${queueMessage}`);
 
       await interaction.reply({ embeds: [embed] });
     } catch (error) {
@@ -38,5 +38,3 @@ const command =  {
     }
   }
 }
-
-export default command;

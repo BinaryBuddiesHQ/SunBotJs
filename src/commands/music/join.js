@@ -2,7 +2,7 @@ import { joinVoiceChannel, createAudioPlayer } from  '@discordjs/voice';
 import { SlashCommandBuilder, ChannelType } from 'discord.js';
 import { loadVoiceEvents, loadAudioEvents } from '../../services/loader-util.js';
 
-const command =  {
+export default {
   data: new SlashCommandBuilder()
     .setName('join')
     .setDescription('Joins your current channel, or a channel of your choice.')
@@ -54,5 +54,3 @@ const command =  {
     }
   }
 }
-
-export default command;

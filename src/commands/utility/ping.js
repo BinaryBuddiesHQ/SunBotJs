@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
 
-const command = {
+export default {
   data: new SlashCommandBuilder()
     .setName('ping')
     .setDescription('Replies With pong!')
@@ -14,5 +14,3 @@ const command = {
     await interaction.reply(`Pong! ${input}`); //TODO: when empty message responds with "null"
   }
 }
-
-export default command;

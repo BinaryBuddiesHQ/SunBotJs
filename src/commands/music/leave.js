@@ -1,7 +1,7 @@
 import { getVoiceConnection } from '@discordjs/voice'
 import { SlashCommandBuilder } from 'discord.js'
 
-const command = {
+export default {
   data: new SlashCommandBuilder()
     .setName('leave')
     .setDescription('Leave'),
@@ -26,5 +26,3 @@ const command = {
     }
   }
 }
-
-export default command;

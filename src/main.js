@@ -2,6 +2,7 @@ import { GatewayIntentBits, Client } from 'discord.js';
 import { loadCommands, loadClientEvents } from './services/loader-util.js';
 import config  from './config.json' assert { type: 'json' };
 import mongodb from './data/db-context.js';
+global.root = import.meta.dirname;
 
 const client = new Client({
 	intents: [

@@ -4,7 +4,7 @@ import {createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPl
 import ytSearch from 'yt-search'
 import ytdl from'@distube/ytdl-core';
 
-const command = {
+export default {
   data: new SlashCommandBuilder()
     .setName('play')
     .setDescription('Plays a song')
@@ -112,5 +112,3 @@ const command = {
     return connection;
   }
 }
-
-export default command;

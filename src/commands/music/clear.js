@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { getVoiceConnection } from '@discordjs/voice';
 
-const command  = {
+export default {
   data: new SlashCommandBuilder()
   .setName('clear')
   .setDescription('Clear all songs in the playback'),
@@ -32,5 +32,3 @@ const command  = {
     }
   }
 };
-
-export default command;

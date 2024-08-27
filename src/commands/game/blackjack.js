@@ -8,7 +8,7 @@ import mongodb from '../../data/db-context.js';
 
 const collectionName = 'blackjack'; // TEMP or other solution
 
-const command = {
+export default {
   data: new SlashCommandBuilder()
     .setName('blackjack')
     .setDescription('Start a blackjack session!'),
@@ -159,5 +159,3 @@ function cancel(interaction) {
     ephemeral: true
   });
 }
-
-export default command;
