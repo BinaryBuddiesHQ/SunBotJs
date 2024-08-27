@@ -22,7 +22,6 @@ export default {
       await interaction.reply('No songs in queue. Stopping playback. Use /play <url> to add songs to queue.');
       return;
     } else if (connection.queue.length > 0) {
-      // TODO: reply "queue not empty, stop anyways?"
       connection.queue.shift();
       await interaction.reply('Queue not empty. Stopping playback. Use /start continue playing.');
     }
@@ -31,7 +30,3 @@ export default {
     connection.player.removeAllListeners(AudioPlayerStatus.Idle);
   }
 }
-
-/* TODO : There is some kind of issue where if you add songs to the queue the use the command /stop and then /start.
-When there is only one song left in the queue and you try to use the /skip command it throws error.
-My initial thoughts is that im using the shift() function improperly contra the messages being sent to discord. Or that something is not updating correctly. */

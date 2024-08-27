@@ -43,7 +43,3 @@ export default {
     connection.queue.shift();
   }
 }
-
-/* TODO : There is some kind of issue where if you add songs to the queue the use the command /stop and then /start.
-When there is only one song left in the queue and you try to use the /skip command it throws error.
-My initial thoughts is that im using the shift() function improperly contra the messages being sent to discord. Or that something is not updating correctly. */
