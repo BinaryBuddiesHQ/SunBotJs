@@ -1,7 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { loadVoiceEvents, loadAudioEvents } from '../../services/loader-util.js';
 import {createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus} from '@discordjs/voice';
-
 import ytSearch from 'yt-search'
 import ytdl from'@distube/ytdl-core';
 

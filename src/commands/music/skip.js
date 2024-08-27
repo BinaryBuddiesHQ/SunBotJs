@@ -1,7 +1,6 @@
 import { SlashCommandBuilder} from "discord.js";
 import { EmbedBuilder }  from "discord.js";
 import { getVoiceConnection, createAudioResource}  from "@discordjs/voice";
-
 import ytdl from "@distube/ytdl-core";
 
 const command = {

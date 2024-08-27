@@ -1,15 +1,12 @@
 import { REST, Routes } from 'discord.js';
-
 import { loadCommands } from './loader-util.js';
-
 import config from '../config.json' assert  { type: 'json' };
-const { clientId, guildId, token } = config.bot;
 
 const args = process.argv.slice(2);
 const deployGlobal = args.includes('global');
 
 // Construct and prepare an instance of the REST module
-const rest = new REST().setToken(token);
+const rest = new REST().setToken(config.token);
 
 // and deploy your commands!
 (async () => {
@@ -23,8 +20,8 @@ const rest = new REST().setToken(token);
 		// The put method is used to fully refresh all commands in the guild with the current set
 		const data = await rest.put(
 			deployGlobal 
-				? Routes.applicationGuildCommands(clientId, guildId)
-				: Routes.applicationCommands(clientId),
+				? Routes.applicationGuildCommands(config.clientId, config.guildId)
+				: Routes.applicationCommands(config.clientId),
 			{ body: commandsData },
 		);
 

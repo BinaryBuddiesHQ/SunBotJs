@@ -1,5 +1,5 @@
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import { getVoiceConnection, AudioPlayerStatus } from '@discordjs/voice';
+import { SlashCommandBuilder } from 'discord.js';
+import { getVoiceConnection } from '@discordjs/voice';
 
 const command  = {
   data: new SlashCommandBuilder()
@@ -30,9 +30,6 @@ const command  = {
     } catch (error) {
       console.log('error message', error)
     }
-
-    // connection.player.stop();
-    // connection.player.removeAllListeners(AudioPlayerStatus.Idle);
   }
 };
 

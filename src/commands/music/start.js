@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder} from 'discord.js';
 import { getVoiceConnection, createAudioResource } from '@discordjs/voice';
-
 import ytdl  from '@distube/ytdl-core'
 
 export default {
