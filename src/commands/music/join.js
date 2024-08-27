@@ -21,7 +21,10 @@ const command =  {
       return;
     }
 
-    connection = joinVoiceChannel({
+    let connection;
+
+    try {
+      connection = joinVoiceChannel({
       channelId: inputChannel.id,
       guildId: inputChannel.guild.id,
       adapterCreator: inputChannel.guild.voiceAdapterCreator,
@@ -44,6 +47,11 @@ const command =  {
     });
 
     await interaction.reply(`Ready to rock!`);
+    } catch (error) {
+      console.error('Error executing join command:', error);
+      await interaction.reply('An error occurred while trying to join the voice channel.');
+      return;
+    }
   }
 }
 
