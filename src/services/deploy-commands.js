@@ -6,7 +6,7 @@ const args = process.argv.slice(2);
 const deployGlobal = args.includes('global');
 
 // Construct and prepare an instance of the REST module
-const rest = new REST().setToken(config.token);
+const rest = new REST().setToken(config.bot.token);
 
 // and deploy your commands!
 (async () => {
@@ -20,8 +20,8 @@ const rest = new REST().setToken(config.token);
 		// The put method is used to fully refresh all commands in the guild with the current set
 		const data = await rest.put(
 			deployGlobal 
-				? Routes.applicationGuildCommands(config.clientId, config.guildId)
-				: Routes.applicationCommands(config.clientId),
+				? Routes.applicationGuildCommands(config.bot.clientId, config.bot.guildId)
+				: Routes.applicationCommands(config.bot.clientId),
 			{ body: commandsData },
 		);
 
