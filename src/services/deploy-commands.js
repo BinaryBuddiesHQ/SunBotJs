@@ -1,13 +1,12 @@
-const { REST, Routes } = require('discord.js');
-const { clientId, guildId, token } = require('../config.json');
-const { loadCommands } = require('./loader-util');
+import { REST, Routes } from 'discord.js';
+
+import { loadCommands } from './loader-util.js';
+
+import config from '../config.json' assert  { type: 'json' };
+const { clientId, guildId, token } = config.bot;
 
 const args = process.argv.slice(2);
 const deployGlobal = args.includes('global');
-
-
-const commands = loadCommands();
-const commandsData = commands.map(x => x.data.toJSON());
 
 // Construct and prepare an instance of the REST module
 const rest = new REST().setToken(token);
@@ -15,6 +14,10 @@ const rest = new REST().setToken(token);
 // and deploy your commands!
 (async () => {
 	try {
+    const commands = await loadCommands();
+    const commandsArray = Array.from(commands.values());
+    const commandsData = commandsArray.map(x => x.data.toJSON());
+
 		console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
 		// The put method is used to fully refresh all commands in the guild with the current set
