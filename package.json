@@ -6,9 +6,9 @@
   "main": "src/main.js",
   "type": "module",
   "scripts": {
-    "dev": "node .",
-    "deploy": "node ./src/services/deploy-commands.js",
-    "deploy-global": "node ./src/services/deploy-commands.js global"
+    "dev": "node ./src/main.js",
+    "deploy": "node ./src/deploy-commands.js",
+    "deploy-global": "node ./src/deploy-commands.js global"
   },
   "dependencies": {
     "@discordjs/opus": "^0.9.0",

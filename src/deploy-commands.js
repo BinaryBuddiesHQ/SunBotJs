@@ -1,6 +1,8 @@
 import { REST, Routes } from 'discord.js';
-import { loadCommands } from './loader-util.js';
-import config from '../config.json' assert  { type: 'json' };
+import { loadCommands } from './services/loader-util.js';
+import config from './config.json' assert  { type: 'json' };
+
+global.root = import.meta.dirname;
 
 const args = process.argv.slice(2);
 const deployGlobal = args.includes('global');

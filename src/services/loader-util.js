@@ -4,6 +4,7 @@ import path from 'path';
 
 export async function loadCommands() {
   const commands = new Collection();
+ 
   const foldersPath = path.join(global.root, '/commands');
 
   const commandFolders = fs.readdirSync(foldersPath);
