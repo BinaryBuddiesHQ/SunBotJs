@@ -2,8 +2,6 @@ import { Collection } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 
-global.root = import.meta.dirname;
-
 export async function loadCommands() {
   const commands = new Collection();
  
