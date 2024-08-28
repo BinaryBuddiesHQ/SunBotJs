@@ -1,23 +1,9 @@
 import { GatewayIntentBits, Client } from 'discord.js';
 import { loadCommands, loadClientEvents } from './services/loader-util.js';
-import { fileURLToPath } from 'url';  // this is part of the global.root folder path solution
-
 import config  from './config.json' assert { type: 'json' };
 import mongodb from './data/db-context.js';
-import path from 'path';  // this is part of the global.root folder path solution
 
-/*
-Set global.root using import.meta.url
-I could not get the path to the global.root to be set. The solution i found on the interwebz was that
-you had to use fileURLtoPath and path.dirname to set the correct path to the folder otherwise the path would be undefined when using the npm run deploy.
-So this is my solution.
-
-https://stackoverflow.com/questions/75004188/what-does-fileurltopathimport-meta-url-do
-This thread on SO wants you to do it like this though, but that doesn't seem to work: const __dirname = path.dirname(fileURLToPath(import.meta.url))
-*/
-const __filename = fileURLToPath(import.meta.url);  // this is part of the global.root folder path solution
-const __dirname = path.dirname(__filename);  // this is part of the global.root folder path solution
-global.root = __dirname;
+global.root = import.meta.dirname
 
 const client = new Client({
 	intents: [

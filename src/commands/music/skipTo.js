@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { getVoiceConnection, createAudioResource } from '@discordjs/voice';
-
 import ytdl from '@distube/ytdl-core';
 
 export default {
@@ -44,8 +43,6 @@ export default {
     const currentSong = connection.queue[0];
     connection.queue.splice(0, number - 1);
     let next = connection.queue[0];
-   
-    
 
     if (!connection.queue || connection.queue.length < 1) {
       // no items in queue? stop? yea
