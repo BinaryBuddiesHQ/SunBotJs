@@ -1,8 +1,9 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { loadVoiceEvents, loadAudioEvents } from '../../services/loader-util.js';
-import {createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus} from '@discordjs/voice';
+import { createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus } from '@discordjs/voice';
 import ytSearch from 'yt-search'
-import ytdl from'@distube/ytdl-core';
+import ytdl from '@distube/ytdl-core';
+import mongodb from '../../data/db-context.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -11,7 +12,7 @@ export default {
     .addStringOption(option =>
       option.setName('input')
         .setDescription('URL or query')
-        .setRequired(true)
+        .setRequired(false)
     ),
 
   async execute(interaction) {
@@ -19,61 +20,87 @@ export default {
     if (!connection) {
       interaction.reply('SunBot can only be used in a voice channel. Please join a voice channel and try again. Or provide a voice channel in the /join command');
       return;
-    } 
+    }
 
     const input = interaction.options.getString('input');
-    const results = await ytSearch(input);
-
-    if (!results?.videos && results?.videos?.length < 1) {
-      interaction.reply("Could not find any songs or videos to match your query");
+    if (!input && connection.player.state.status === AudioPlayerStatus.Playing) {
+      interaction.reply('Already playing a song, provide a query or url to queue it up!');
       return;
     }
 
-    const video = results.videos[0];
-    const info = await ytdl.getInfo(video.url);
+    let player = await mongodb.getAsync("player", interaction.guild.id);
 
-    const embed = new EmbedBuilder()
-      .setTitle(`${info.videoDetails.title}`)
-      .setDescription(`${info.videoDetails.description.substring(0, 250)}`)
-      .setImage(info.videoDetails.thumbnails[0].url)
-      .setFooter({ text: `${ info.videoDetails.video_url }` });
+    if (!input) {
+      if (player?.queue && player?.queue < 1) {
+        interaction.reply('No songs in queue');
+        return;
+      }
 
-    // add to queue.
-    // if playing queue it up
-    if (connection.player.state.status === AudioPlayerStatus.Playing) {
-      console.log("i'm already playing something, queue it up");
-
-      connection.queue ??= [];
-      connection.queue.push({
-        videoUrl: video.url,
-        title: info.videoDetails.title
+      const nextSong = player?.queue?.shift();
+      const audioStream = ytdl(nextSong.videoUrl, {
+        format: 'opus',
+        filter: 'audioonly'
       });
 
-      interaction.reply({ embeds: [embed] });
+      const resource = createAudioResource(audioStream);
+      connection.player.play(resource);
 
-    } else {
-      // might throw error when no opus? maybe try catch here
-      // Added try/catch clause. Update: Might need better error handling than "console.log (e)" though.
-      try {
-        const audioStream = ytdl(video.url, {
+      const embed = new EmbedBuilder()
+        .setTitle(`Now playing`)
+        .setDescription(`[${nextSong.title}](${nextSong.videoUrl})`)
+        .setColor('#FFD700')
+        .setFooter({ text: `Queue lenght: ${player.queue.length}` });
+
+      interaction.reply({ embeds: [embed] });
+    }
+    else {
+      const results = await ytSearch(input);
+      if (!results?.videos?.length > 1) {
+        interaction.reply("Could not find any songs that match your query");
+        return;
+      }
+
+      const video = results.videos[0];
+      const info = await ytdl.getInfo(video.url);
+      player.queue ??= [];
+      player.queue.push({
+        title: info.videoDetails.title,
+        description: info.videoDetails.description.substring(0, 250),
+        thumbnail: info.videoDetails.thumbnails[0].url,
+        videoUrl: video.url,
+      });
+
+      if (connection.player.state.status === AudioPlayerStatus.Playing) {
+        let latestEntry = player.queue[player.queue.length - 1];
+
+        const embed = new EmbedBuilder()
+          .setTitle(`Added to queue`)
+          .setDescription(`[${latestEntry.title}](${latestEntry.videoUrl})`)
+          .setColor('#FFD700')
+          .setFooter({ text: `Queue lenght: ${player.queue.length}` });
+
+        interaction.reply({ embeds: [embed] });
+      }
+      else {
+        const nextSong = player.queue.shift();
+        const audioStream = ytdl(nextSong.videoUrl, {
           format: 'opus',
           filter: 'audioonly'
         });
-  
+
         const resource = createAudioResource(audioStream);
         connection.player.play(resource);
-  
+        const embed = new EmbedBuilder()
+          .setTitle(`Now playing`)
+          .setDescription(`[${nextSong.title}](${nextSong.videoUrl})`)
+          .setColor('#FFD700')
+          .setFooter({ text: `Queue lenght: ${player.queue.length}` });
+
         interaction.reply({ embeds: [embed] });
-
-        connection.queue = [{
-          videoUrl: video.url,
-          title: info.videoDetails.title
-        }];
-
-      } catch (e) {
-        console.log(e);
       }
     }
+
+    await mongodb.createOrUpdateAsync("player", interaction.guild.id, player);
   },
 
   async getOrCreateVoiceConnection(interaction) {

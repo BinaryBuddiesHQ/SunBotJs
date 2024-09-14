@@ -47,7 +47,7 @@ export default {
       components: [row],
     });
 
-    mongodb.createOrUpdateAsync(collectionName, interaction.id, {
+    await mongodb.createOrUpdateAsync(collectionName, interaction.id, {
       players: [],
       // TODO: gamestate 'not started'
     });
@@ -116,7 +116,7 @@ async function join(interaction) {
   }
 }
 
-function start(interaction) {
+async function start(interaction) {
   // start game loop
 
   // shuffle deck
@@ -130,7 +130,7 @@ function start(interaction) {
 
   // original interaction id
   var originalInteractionId = interaction.message.interaction.id;
-  mongodb.createOrUpdateAsync(collectionName, originalInteractionId,
+  await mongodb.createOrUpdateAsync(collectionName, originalInteractionId,
     {
       name: "Start"
     }
@@ -142,13 +142,13 @@ function start(interaction) {
   });
 }
 
-function cancel(interaction) {
+async function cancel(interaction) {
 
   // shared stop game function?
 
   // original interaction id
   var originalInteractionId = interaction.message.interaction.id;
-  mongodb.createOrUpdateAsync(collectionName, originalInteractionId,
+  await mongodb.createOrUpdateAsync(collectionName, originalInteractionId,
     {
       name: "cancel"
     }

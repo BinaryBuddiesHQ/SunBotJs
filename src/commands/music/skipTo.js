@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { getVoiceConnection, createAudioResource } from '@discordjs/voice';
 import ytdl from '@distube/ytdl-core';
+import mongodb from '../../data/db-context.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -9,7 +10,7 @@ export default {
   .addStringOption(option => 
     option.setName('input')
       .setDescription('What song do you want to skip to?')
-      .setRequired(true)
+      .setRequired(true) // TODO: not required. If no selection, dropdown with queue, select value, play song.
   ),
 
   async execute(interaction) {
@@ -27,10 +28,12 @@ export default {
       return;
     }
 
+    let queue = await mongodb.getAsync("player", interaction.guild.id);
+
     let number = parseInt(interaction.options.getString('input'));
 
-    if (isNaN(number) || number <= 0 || number > connection.queue.length) {
-      const queueMessage = connection.queue.map((song, index) => `${index + 1}. [${song.title}](${song.videoUrl})`).join('\n');
+    if (isNaN(number) || number <= 0 || number > player?.queue?.length) {
+      const queueMessage = player?.queue.map((song, index) => `${index + 1}. [${song.title}](${song.videoUrl})`).join('\n');
 
       const embed = new EmbedBuilder()
         .setTitle(`Invalid input. Please provide a number between 1 and the number of songs in the queue. Current queue:`)
@@ -40,11 +43,11 @@ export default {
       return;
     }
     
-    const currentSong = connection.queue[0];
-    connection.queue.splice(0, number - 1);
-    let next = connection.queue[0];
+    const currentSong = player?.queue[0];
+    player?.queue.splice(0, number - 1);
+    let next = player?.queue[0];
 
-    if (!connection.queue || connection.queue.length < 1) {
+    if (!queue?.length < 1) {
       // no items in queue? stop? yea
       connection.player.stop();
 

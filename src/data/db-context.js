@@ -47,7 +47,7 @@ class MongoDb {
   async getAsync(collectionName, id) {
     const collection = this.context.collection(collectionName);
     const query = { id: id };
-    return collection.findOne(query);
+    return await collection.findOne(query) ?? {};
   }
 
   // TODO: implement

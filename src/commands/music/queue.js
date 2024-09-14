@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
-import { getVoiceConnection } from "@discordjs/voice";
+import mongodb from "../../data/db-context.js";
 
 export default {
   data: new SlashCommandBuilder()
@@ -7,34 +7,20 @@ export default {
     .setDescription('Shows the current queue.'),
 
   async execute(interaction) {
-    const connection = getVoiceConnection(interaction.guild.id);
+    let player = await mongodb.getAsync("player", interaction.guild.id);
 
-    if (!connection) {
-      await interaction.reply("I'm not even in a channel... how would i have something queued idiot...");
+    if (player?.queue && player?.queue.length < 1) {
+      await interaction.reply('No songs in queue');
       return;
     }
 
-    if (!connection.player) {
-      await interaction.reply("No player, you probs didn't join a channel. Idiot...");
-      return;
-    }
+    let queueMessage = player?.queue.map((song, index) => `${index + 1}. [${song.title}](${song.videoUrl})`).join('\n');
 
-    if (!connection.queue || connection.queue.length < 1) {
-      await interaction.reply('No songs in queue.');
-      return;
-    }
+    const embed = new EmbedBuilder()
+      .setTitle(`Current Queue`)
+      .setDescription(`${queueMessage}`)
+      .setColor('#FFD700');
 
-    try {
-      const queueMessage = connection.queue.map((song, index) => `${index + 1}. [${song.title}](${song.videoUrl})`).join('\n');
-
-      const embed = new EmbedBuilder()
-        .setTitle(`Current Queue`)
-        .setDescription(`${queueMessage}`);
-
-      await interaction.reply({ embeds: [embed] });
-    } catch (error) {
-      console.log(error)
-      await interaction.reply("An error occured while fetching the queue.");
-    }
+    await interaction.reply({ embeds: [embed] });
   }
 }

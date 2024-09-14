@@ -1,34 +1,23 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { getVoiceConnection } from '@discordjs/voice';
+import mongodb from '../../data/db-context.js';
 
 export default {
   data: new SlashCommandBuilder()
   .setName('clear')
-  .setDescription('Clear all songs in the playback'),
+  .setDescription('Clear all songs in the queue'),
 
   async execute (interaction) {
-    const connection = getVoiceConnection(interaction.guild.id);
+    let player = await mongodb.getAsync("player", interaction.guild.id)
 
-    if (!connection) {
-      await interaction.reply(`I'm not even in a channel... how would i have something queued idiot...`);
-      return;
-    }
-
-    if (!connection.player) {
-      await interaction.reply(`No player, you probs didn't join a channel. Idiot...`);
-      return;
-    }
-
-    if (!connection.queue || connection.queue.length < 1) {
+    if (player?.queue?.length < 1) {
       interaction.reply('No songs in queue.');
       return;
     }
 
-    try {
-      connection.queue = [];
-      await interaction.reply('Cleared queue');
-    } catch (error) {
-      console.log('error message', error)
-    }
+    player.queue = [];
+    await mongodb.createOrUpdateAsync("player", interaction.guild.id, player);
+
+    await interaction.reply('Cleared queue');
   }
 };
