@@ -49,7 +49,7 @@ export default {
         .setTitle(`Now playing`)
         .setDescription(`[${nextSong.title}](${nextSong.videoUrl})`)
         .setColor('#FFD700')
-        .setFooter({ text: `Queue lenght: ${player.queue.length}` });
+        .setFooter({ text: `Queue length: ${player.queue.length}` });
 
       interaction.reply({ embeds: [embed] });
     }
@@ -133,7 +133,7 @@ export default {
     const playerEvents = await loadAudioEvents();
     playerEvents.forEach(event => {
       event.interaction = interaction
-      player.on(event.name, (...args) => event.execute(connection, ...args));
+      player.on(event.name, (...args) => event.execute(connection, interaction, ...args));
     });
 
     return connection;

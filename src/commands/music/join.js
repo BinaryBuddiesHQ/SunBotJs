@@ -1,4 +1,4 @@
-import { joinVoiceChannel, createAudioPlayer } from  '@discordjs/voice';
+import { joinVoiceChannel, createAudioPlayer } from '@discordjs/voice';
 import { SlashCommandBuilder, ChannelType } from 'discord.js';
 import { loadVoiceEvents, loadAudioEvents } from '../../services/loader-util.js';
 
@@ -13,7 +13,7 @@ export default {
     ),
 
   async execute(interaction) {
-    const inputChannel = interaction.options.getChannel('channel') 
+    const inputChannel = interaction.options.getChannel('channel')
       ?? interaction.member.voice.channel;
 
     if (!inputChannel) {
@@ -25,28 +25,28 @@ export default {
 
     try {
       connection = joinVoiceChannel({
-      channelId: inputChannel.id,
-      guildId: inputChannel.guild.id,
-      adapterCreator: inputChannel.guild.voiceAdapterCreator,
-      selfDeaf: false
-    });
+        channelId: inputChannel.id,
+        guildId: inputChannel.guild.id,
+        adapterCreator: inputChannel.guild.voiceAdapterCreator,
+        selfDeaf: false
+      });
 
-    const events = await loadVoiceEvents();
-    events.forEach(event => {
-      connection.on(event.name, () => event.execute());
-    });
+      const events = await loadVoiceEvents();
+      events.forEach(event => {
+        connection.on(event.name, () => event.execute());
+      });
 
-    const player = createAudioPlayer();
-    connection.player = player;
-    connection.subscribe(player);
-    
-    const playerEvents = await loadAudioEvents();
-    playerEvents.forEach(event => {
-      event.interaction = interaction;
-      player.on(event.name, (...args) => event.execute(connection, ...args));
-    });
+      const player = createAudioPlayer();
+      connection.player = player;
+      connection.subscribe(player);
 
-    await interaction.reply(`Ready to rock!`);
+      const playerEvents = await loadAudioEvents();
+      playerEvents.forEach(event => {
+        event.interaction = interaction;
+        player.on(event.name, (...args) => event.execute(connection, interaction, ...args));
+      });
+
+      await interaction.reply(`Ready to rock!`);
     } catch (error) {
       console.error('Error executing join command:', error);
       await interaction.reply('An error occurred while trying to join the voice channel.');
