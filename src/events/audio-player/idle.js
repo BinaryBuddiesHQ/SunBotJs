@@ -11,8 +11,13 @@ export default {
 
       let nextSong = player.queue.shift();
       const audioStream = ytdl(nextSong.videoUrl, {
-        format: 'opus',
-        filter: 'audioonly'
+        quality: 'highestaudio',
+        highWaterMark: 1 << 25,
+        requestOptions: {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+          },
+        },
       });
 
       const resource = createAudioResource(audioStream);
