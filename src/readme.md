@@ -3,6 +3,9 @@
 Create a disco bot in dev portal.
 Place a config.json in root src.
 
+- npm i
+- npm run dev
+
 # config.json
 
 Should look something like this:
