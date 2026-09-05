@@ -38,6 +38,7 @@ export default {
 
       const player = createAudioPlayer();
       connection.player = player;
+      connection.queue = [];
       connection.subscribe(player);
 
       const playerEvents = await loadAudioEvents();

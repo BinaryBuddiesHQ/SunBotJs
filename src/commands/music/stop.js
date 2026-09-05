@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { getVoiceConnection, AudioPlayerStatus } from '@discordjs/voice';
-import mongodb from '../../data/db-context.js';
+import { getVoiceConnection } from '@discordjs/voice';
 
 export default {
   data: new SlashCommandBuilder()

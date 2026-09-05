@@ -1,7 +1,5 @@
 import { GatewayIntentBits, Client } from 'discord.js';
 import { loadCommands, loadClientEvents } from './services/loader-util.js';
-import config  from './config.json' assert { type: 'json' };
-import mongodb from './data/db-context.js';
 
 global.root = import.meta.dirname
 
@@ -20,7 +18,7 @@ events.forEach(event => {
 	else client.on(event.name, (...args) => event.execute(...args));
 });
 
-client.login(config.bot.token);
+client.login(process.env.BOT_TOKEN);
 
 
 process.on('uncaughtException', (error) => {
@@ -37,11 +35,6 @@ process.on('SIGTERM', async () => {
 
 async function gracefulShutdown() {
 	try {
-		if (mongodb?.client) {
-			await mongodb.client.close();
-			console.log("MongoDB connection closed.");
-		}
-
 		await client.destroy();
 		console.log('Client destroyed, exiting process.');
 		process.exit(0);

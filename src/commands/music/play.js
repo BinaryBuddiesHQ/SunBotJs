@@ -1,9 +1,8 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { loadVoiceEvents, loadAudioEvents } from '../../services/loader-util.js';
-import { createAudioResource, getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus } from '@discordjs/voice';
+import { getVoiceConnection, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus } from '@discordjs/voice';
 import ytSearch from 'yt-search'
-import ytdl from '@distube/ytdl-core';
-import mongodb from '../../data/db-context.js';
+import { getVideoInfo, createAudioResourceFromUrl } from '../../services/audio-service.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -28,84 +27,62 @@ export default {
       return;
     }
 
-    let player = await mongodb.getAsync("player", interaction.guild.id);
-
     if (!input) {
-      if (player?.queue && player?.queue < 1) {
+      if (connection.queue.length < 1) {
         interaction.reply('No songs in queue');
         return;
       }
 
-      const nextSong = player?.queue?.shift();
-      const audioStream = ytdl(nextSong.videoUrl, {
-        format: 'opus',
-        filter: 'audioonly'
-      });
-
-      const resource = createAudioResource(audioStream);
+      const nextSong = connection.queue.shift();
+      const resource = createAudioResourceFromUrl(nextSong.videoUrl);
       connection.player.play(resource);
 
       const embed = new EmbedBuilder()
         .setTitle(`Now playing`)
         .setDescription(`[${nextSong.title}](${nextSong.videoUrl})`)
         .setColor('#FFD700')
-        .setFooter({ text: `Queue length: ${player.queue.length}` });
+        .setFooter({ text: `Queue length: ${connection.queue.length}` });
 
       interaction.reply({ embeds: [embed] });
     }
     else {
+      await interaction.deferReply();
+
       const results = await ytSearch(input);
-      if (!results?.videos?.length > 1) {
-        interaction.reply("Could not find any songs that match your query");
+      if (!results?.videos?.length) {
+        interaction.editReply("Could not find any songs that match your query");
         return;
       }
 
       const video = results.videos[0];
-      const info = await ytdl.getInfo(video.url);
-      player.queue ??= [];
-      player.queue.push({
-        title: info.videoDetails.title,
-        description: info.videoDetails.description.substring(0, 250),
-        thumbnail: info.videoDetails.thumbnails[0].url,
-        videoUrl: video.url,
-      });
+      const info = await getVideoInfo(video.url);
+      connection.queue.push(info);
 
       if (connection.player.state.status === AudioPlayerStatus.Playing) {
-        let latestEntry = player.queue[player.queue.length - 1];
+        const latestEntry = connection.queue[connection.queue.length - 1];
 
         const embed = new EmbedBuilder()
           .setTitle(`Added to queue`)
           .setDescription(`[${latestEntry.title}](${latestEntry.videoUrl})`)
           .setColor('#FFD700')
-          .setFooter({ text: `Queue lenght: ${player.queue.length}` });
+          .setFooter({ text: `Queue length: ${connection.queue.length}` });
 
-        interaction.reply({ embeds: [embed] });
+        interaction.editReply({ embeds: [embed] });
       }
       else {
-        const nextSong = player.queue.shift();
-        const audioStream = ytdl(nextSong.videoUrl, {
-          quality: 'highestaudio',
-          highWaterMark: 1 << 25,
-          requestOptions: {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
-            },
-          },
-        });
-
-        const resource = createAudioResource(audioStream);
+        const nextSong = connection.queue.shift();
+        const resource = createAudioResourceFromUrl(nextSong.videoUrl);
         connection.player.play(resource);
+
         const embed = new EmbedBuilder()
           .setTitle(`Now playing`)
           .setDescription(`[${nextSong.title}](${nextSong.videoUrl})`)
           .setColor('#FFD700')
-          .setFooter({ text: `Queue lenght: ${player.queue.length}` });
+          .setFooter({ text: `Queue length: ${connection.queue.length}` });
 
-        interaction.reply({ embeds: [embed] });
+        interaction.editReply({ embeds: [embed] });
       }
     }
-
-    await mongodb.createOrUpdateAsync("player", interaction.guild.id, player);
   },
 
   async getOrCreateVoiceConnection(interaction) {
@@ -133,6 +110,7 @@ export default {
     // init player and player events
     const player = createAudioPlayer();
     connection.player = player;
+    connection.queue = [];
     connection.subscribe(player);
 
     const playerEvents = await loadAudioEvents();

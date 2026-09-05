@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
-import mongodb from "../../data/db-context.js";
+import { getVoiceConnection } from "@discordjs/voice";
 
 export default {
   data: new SlashCommandBuilder()
@@ -7,14 +7,14 @@ export default {
     .setDescription('Shows the current queue.'),
 
   async execute(interaction) {
-    let player = await mongodb.getAsync("player", interaction.guild.id);
+    const connection = getVoiceConnection(interaction.guild.id);
 
-    if (player?.queue && player?.queue.length < 1) {
+    if (!connection || connection.queue.length < 1) {
       await interaction.reply('No songs in queue');
       return;
     }
 
-    let queueMessage = player?.queue.map((song, index) => `${index + 1}. [${song.title}](${song.videoUrl})`).join('\n');
+    const queueMessage = connection.queue.map((song, index) => `${index + 1}. [${song.title}](${song.videoUrl})`).join('\n');
 
     const embed = new EmbedBuilder()
       .setTitle(`Current Queue`)

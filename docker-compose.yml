@@ -1,0 +1,7 @@
+services:
+  bgutil-provider:
+    image: brainicism/bgutil-ytdlp-pot-provider
+    container_name: bgutil-provider
+    restart: unless-stopped
+    ports:
+      - "4416:4416"

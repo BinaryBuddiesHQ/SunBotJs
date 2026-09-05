@@ -1,7 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
-import { getVoiceConnection, createAudioResource } from "@discordjs/voice";
-import ytdl from "@distube/ytdl-core";
-import mongodb from "../../data/db-context.js";
+import { getVoiceConnection } from "@discordjs/voice";
+import { createAudioResourceFromUrl } from "../../services/audio-service.js";
 
 export default {
   data: new SlashCommandBuilder()
@@ -21,8 +20,7 @@ export default {
       return;
     }
 
-    let player = await mongodb.getAsync("player", interaction.guild.id);
-    let nextSong = player?.queue?.shift();
+    const nextSong = connection.queue.shift();
 
     if (!nextSong) {
       connection.player.stop();
@@ -30,25 +28,14 @@ export default {
       return;
     }
 
-    const audioStream = ytdl(nextSong.videoUrl, {
-      quality: 'highestaudio',
-      highWaterMark: 1 << 25,
-      requestOptions: {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
-        },
-      },
-    });
+    const resource = createAudioResourceFromUrl(nextSong.videoUrl);
+    connection.player.play(resource);
 
     const embed = new EmbedBuilder()
       .setTitle(`Now playing`)
       .setDescription(`[${nextSong.title}](${nextSong.videoUrl})`)
       .setColor('#FFD700')
-      .setFooter({ text: `Queue length: ${player.queue.length}` });
-
-    const resource = createAudioResource(audioStream);
-    connection.player.play(resource);
-    await mongodb.createOrUpdateAsync("player", interaction.guild.id, player);
+      .setFooter({ text: `Queue length: ${connection.queue.length}` });
 
     interaction.reply({ embeds: [embed] });
   }
